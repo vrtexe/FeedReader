@@ -23,6 +23,7 @@ import org.htmlparser.util.ParserException;
 import org.springframework.http.MediaType;
 import org.w3c.dom.Document;
 
+//Isto kako vo feed source vo linkot se proveruva dali e validen
 @Getter
 @Embeddable
 public class Link implements ValueObject {

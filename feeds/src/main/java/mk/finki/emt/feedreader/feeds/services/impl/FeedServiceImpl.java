@@ -21,6 +21,7 @@ import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
 import org.springframework.stereotype.Service;
 
+//Sekoj metod soodvetstvuva na kontrolerot
 @Service
 @Transactional
 @AllArgsConstructor
@@ -55,7 +56,6 @@ public class FeedServiceImpl implements FeedService {
           repository
             .findById(new FeedSourceId(id))
             .orElseThrow(FeedSourceNotFoundException::new)
-            .clearArticles()
         )
         .getId()
     );

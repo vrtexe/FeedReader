@@ -7,6 +7,7 @@ import lombok.Getter;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSourceId;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.ValueObject;
 
+//Obde se chuva element od drugiot modul
 @Getter
 public class FeedSubscription implements ValueObject {
 

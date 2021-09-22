@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//Tuka se naogja pogolemata logika od ovoj modul
 @Getter
 @Entity
 @Table(name = "feed_sources")
@@ -45,7 +46,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
   )
   private Set<Article> articles;
 
-  public FeedSource() {
+  protected FeedSource() {
     super(FeedSourceId.randomId(FeedSourceId.class));
     this.link = null;
     this.articles = new HashSet<>();
@@ -56,6 +57,8 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     this.subscribers = 0;
   }
 
+  //Vo konstruktorot se proveruva dali e validen linkot, dokolku ne e nema da se kretira objekt
+  //tuku bi se frlilo exception
   public FeedSource(Link link) throws Exception {
     super(FeedSourceId.randomId(FeedSourceId.class));
     this.link = link;
@@ -129,6 +132,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     updateArticles();
   }
 
+  //Tuka se pravi chitanje na XLM i mapiranje
   public Set<Article> updateArticles() throws Exception {
     Document document = link.ReadXML();
     NodeList feeds = document.getElementsByTagName("feed");
@@ -249,15 +253,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
           String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
 
           articles.add(
-            new Article(
-              title,
-              link,
-              summary,
-              category,
-              updated,
-              author,
-              image
-            )
+            new Article(title, link, summary, category, updated, author, image)
           );
         }
       }
@@ -322,15 +318,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
           String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
 
           articles.add(
-            new Article(
-              title,
-              link,
-              summary,
-              category,
-              updated,
-              author,
-              image
-            )
+            new Article(title, link, summary, category, updated, author, image)
           );
         }
       }
@@ -338,16 +326,13 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     return articles;
   }
 
-  public FeedSource clearArticles() {
-    // this.articleDROP TABLE article;s.removeAll(this.articles);
-    return this;
-  }
-
+  //vo ovoj metod se zgolemuva brojot na subs za odreden source
   public FeedSource addSubscriber() {
     this.subscribers++;
     return this;
   }
 
+  //vo ovoj metod se zgolemuva brojot na subs za odreden source
   public FeedSource removeSubscriber() {
     this.subscribers--;
     return this;

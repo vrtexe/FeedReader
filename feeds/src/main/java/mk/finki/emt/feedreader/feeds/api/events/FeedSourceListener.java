@@ -9,6 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+//Tuka se naigjaat site eventListenteners za soodvetnata klasa
 @Service
 @AllArgsConstructor
 public class FeedSourceListener {

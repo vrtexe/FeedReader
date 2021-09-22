@@ -8,6 +8,7 @@ import mk.finki.emt.feedreader.feeds.domain.valueObjects.Author;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Link;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.AbstractEntity;
 
+//Artiklot e chist entitet bez logika pozadi nego
 @Getter
 @Entity
 @Table(name = "article")

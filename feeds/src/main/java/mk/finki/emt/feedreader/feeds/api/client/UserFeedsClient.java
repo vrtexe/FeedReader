@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+
+// UserFeedClient klasata se koristi za da se dobija soodvetni podatoci od drugiot modul
 @Service
 public class UserFeedsClient {
 

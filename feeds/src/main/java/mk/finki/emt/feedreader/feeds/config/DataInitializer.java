@@ -7,6 +7,7 @@ import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
 // import org.springframework.stereotype.Component;
 
+//Klatata beshe koristena za postavuvanje na podatoci vo bazata
 // @Component
 @AllArgsConstructor
 public class DataInitializer {

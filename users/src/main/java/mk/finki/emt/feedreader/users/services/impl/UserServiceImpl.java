@@ -142,4 +142,11 @@ public class UserServiceImpl implements UserService {
   public Collection<User> getUsers() {
     return repository.findAll();
   }
+
+  @Override
+  public User getUserByUsername(String username) {
+    return repository
+      .findFirstByAuthenticationUsername(username)
+      .orElseThrow(() -> new UsernameNotFoundException(username));
+  }
 }

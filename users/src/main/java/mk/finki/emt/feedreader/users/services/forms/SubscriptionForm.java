@@ -1,14 +1,13 @@
 package mk.finki.emt.feedreader.users.services.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class SubscriptionForm {
 
   @NotNull
@@ -20,4 +19,13 @@ public class SubscriptionForm {
   @NotBlank
   @NotEmpty
   private String feedSourceId;
+
+  @JsonCreator
+  public SubscriptionForm(
+    @JsonProperty("username") String username,
+    @JsonProperty("feedSourceId") String feedSourceId
+  ) {
+    this.username = username;
+    this.feedSourceId = feedSourceId;
+  }
 }

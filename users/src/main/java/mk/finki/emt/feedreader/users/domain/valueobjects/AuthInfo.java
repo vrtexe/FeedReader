@@ -7,9 +7,11 @@ import lombok.Getter;
 import mk.finki.emt.feedreader.users.domain.exceptions.LoginInfoNotValidException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 @Getter
 @Embeddable
+@Component
 public class AuthInfo {
 
   private final String username;

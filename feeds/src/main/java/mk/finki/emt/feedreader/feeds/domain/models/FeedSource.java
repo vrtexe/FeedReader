@@ -36,14 +36,14 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
 
   private String copyright;
 
-  private Integer subscriptions;
+  private Integer subscribers;
 
   @OneToMany(
     cascade = CascadeType.ALL,
     orphanRemoval = true,
     fetch = FetchType.EAGER
   )
-  private Set<ArticleCard> articles;
+  private Set<Article> articles;
 
   public FeedSource() {
     super(FeedSourceId.randomId(FeedSourceId.class));
@@ -53,7 +53,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     this.description = "";
     this.title = "";
     this.copyright = "";
-    this.subscriptions = 0;
+    this.subscribers = 0;
   }
 
   public FeedSource(Link link) throws Exception {
@@ -124,12 +124,12 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
       }
     }
 
-    this.subscriptions = 0;
+    this.subscribers = 0;
 
     updateArticles();
   }
 
-  public Set<ArticleCard> updateArticles() throws Exception {
+  public Set<Article> updateArticles() throws Exception {
     Document document = link.ReadXML();
     NodeList feeds = document.getElementsByTagName("feed");
 
@@ -249,7 +249,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
           String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
 
           articles.add(
-            new ArticleCard(
+            new Article(
               title,
               link,
               summary,
@@ -322,7 +322,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
           String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
 
           articles.add(
-            new ArticleCard(
+            new Article(
               title,
               link,
               summary,
@@ -344,12 +344,12 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
   }
 
   public FeedSource addSubscriber() {
-    this.subscriptions++;
+    this.subscribers++;
     return this;
   }
 
   public FeedSource removeSubscriber() {
-    this.subscriptions--;
+    this.subscribers--;
     return this;
   }
 }

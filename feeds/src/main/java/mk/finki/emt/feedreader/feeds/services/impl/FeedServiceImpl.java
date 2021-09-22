@@ -10,7 +10,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import lombok.AllArgsConstructor;
 import mk.finki.emt.feedreader.feeds.domain.exceptions.FeedSourceNotFoundException;
-import mk.finki.emt.feedreader.feeds.domain.models.ArticleCard;
+import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSourceId;
 import mk.finki.emt.feedreader.feeds.domain.repository.FeedRepository;
@@ -62,17 +62,17 @@ public class FeedServiceImpl implements FeedService {
   }
 
   @Override
-  public Set<ArticleCard> updateArticlesForSource(String id) throws Exception {
+  public Set<Article> updateArticlesForSource(String id) throws Exception {
     FeedSource feedSource = repository
       .findById(new FeedSourceId(id))
       .orElseThrow(FeedSourceNotFoundException::new);
-    Set<ArticleCard> articles = feedSource.updateArticles();
+    Set<Article> articles = feedSource.updateArticles();
     repository.saveAndFlush(feedSource);
     return articles;
   }
 
   @Override
-  public Set<ArticleCard> updateAllArticles() throws Exception {
+  public Set<Article> updateAllArticles() throws Exception {
     return repository
       .findAll()
       .stream()
@@ -99,7 +99,7 @@ public class FeedServiceImpl implements FeedService {
   }
 
   @Override
-  public Set<ArticleCard> getAllArticlesForSource(String id) {
+  public Set<Article> getAllArticlesForSource(String id) {
     return repository
       .findById(new FeedSourceId(id))
       .orElseThrow(FeedSourceNotFoundException::new)
@@ -107,7 +107,7 @@ public class FeedServiceImpl implements FeedService {
   }
 
   @Override
-  public Set<ArticleCard> getAllArticles() {
+  public Set<Article> getAllArticles() {
     return repository
       .findAll()
       .stream()
@@ -122,7 +122,7 @@ public class FeedServiceImpl implements FeedService {
   }
 
   @Override
-  public Set<ArticleCard> getAllArticlesForUser(
+  public Set<Article> getAllArticlesForUser(
     Collection<FeedSubscription> feedSubscriptions
   ) {
     return repository

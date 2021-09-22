@@ -26,5 +26,7 @@ public interface UserService {
 
   public void unsubscribeFromFeed(SubscriptionForm form);
 
+  public User getUserByUsername(String username);
+
   public Collection<User> getUsers();
 }

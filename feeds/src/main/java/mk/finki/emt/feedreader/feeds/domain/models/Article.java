@@ -11,7 +11,7 @@ import mk.finki.emt.feedreader.sharedkernel.domain.base.AbstractEntity;
 @Getter
 @Entity
 @Table(name = "article")
-public class ArticleCard extends AbstractEntity<ArticleId> {
+public class Article extends AbstractEntity<ArticleId> {
 
   private String title;
 
@@ -27,7 +27,7 @@ public class ArticleCard extends AbstractEntity<ArticleId> {
 
   private String image;
 
-  protected ArticleCard() {
+  protected Article() {
     super(ArticleId.randomId(ArticleId.class));
     this.title = null;
     this.link = null;
@@ -38,7 +38,7 @@ public class ArticleCard extends AbstractEntity<ArticleId> {
     this.image = null;
   }
 
-  public ArticleCard(
+  public Article(
     String title,
     Link link,
     String summary,

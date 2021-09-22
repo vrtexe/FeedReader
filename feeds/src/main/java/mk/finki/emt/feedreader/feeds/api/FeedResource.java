@@ -3,12 +3,15 @@ package mk.finki.emt.feedreader.feeds.api;
 import java.util.Collection;
 import lombok.AllArgsConstructor;
 import mk.finki.emt.feedreader.feeds.api.client.UserFeedsClient;
-import mk.finki.emt.feedreader.feeds.domain.models.ArticleCard;
+import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
+import mk.finki.emt.feedreader.sharedkernel.domain.types.ActionCompleted;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/feeds")
 @AllArgsConstructor
@@ -35,7 +39,7 @@ public class FeedResource {
   }
 
   @GetMapping("/articles/{id}")
-  public ResponseEntity<Collection<ArticleCard>> getAllArticlesForFeedSource(
+  public ResponseEntity<Collection<Article>> getAllArticlesForFeedSource(
     @PathVariable String id
   ) {
     try {
@@ -49,7 +53,7 @@ public class FeedResource {
   }
 
   @GetMapping("/user/{username}")
-  public ResponseEntity<Collection<ArticleCard>> getAllArticlesForUser(
+  public ResponseEntity<Collection<Article>> getAllArticlesForUser(
     @PathVariable String username
   ) {
     try {
@@ -65,7 +69,7 @@ public class FeedResource {
   }
 
   @GetMapping("/articles")
-  public ResponseEntity<Collection<ArticleCard>> getAllArticles() {
+  public ResponseEntity<Collection<Article>> getAllArticles() {
     try {
       return new ResponseEntity<>(service.getAllArticles(), HttpStatus.OK);
     } catch (Exception e) {
@@ -75,7 +79,7 @@ public class FeedResource {
 
   @PostMapping
   public ResponseEntity<FeedSource> addNewSource(
-    @RequestBody FeedSourceForm form
+    @RequestBody(required = false) FeedSourceForm form
   ) {
     try {
       return new ResponseEntity<>(service.addSource(form), HttpStatus.OK);
@@ -85,17 +89,17 @@ public class FeedResource {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Boolean> removeExistingSource(@PathVariable String id) {
+  public ResponseEntity<ActionCompleted> removeExistingSource(@PathVariable String id) {
     try {
       service.removeSource(id);
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(new ActionCompleted(true), HttpStatus.OK);
     } catch (Exception e) {
-      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(new ActionCompleted(false), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @GetMapping("/articles/update/{id}")
-  public ResponseEntity<Collection<ArticleCard>> updateArticlesForSource(
+  public ResponseEntity<Collection<Article>> updateArticlesForSource(
     @PathVariable String id
   ) {
     try {
@@ -109,7 +113,7 @@ public class FeedResource {
   }
 
   @GetMapping("/articles/update")
-  public ResponseEntity<Collection<ArticleCard>> updateArticlesForAllSource(
+  public ResponseEntity<Collection<Article>> updateArticlesForAllSource(
     @PathVariable String id
   ) {
     try {

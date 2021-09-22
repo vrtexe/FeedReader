@@ -1,2 +1,2 @@
 # FeedReader
-Multimodular application using maven and spring boot with react frontend
+Multi-modular Domain Driven Design application using maven and spring boot with react frontend

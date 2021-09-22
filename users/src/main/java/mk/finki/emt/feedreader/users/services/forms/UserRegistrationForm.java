@@ -1,16 +1,15 @@
 package mk.finki.emt.feedreader.users.services.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class UserRegistrationForm {
 
   @NotNull
@@ -37,4 +36,19 @@ public class UserRegistrationForm {
 
   @Email
   private String email;
+
+  @JsonCreator
+  public UserRegistrationForm(
+    @JsonProperty("name") String name,
+    @JsonProperty("lastName") String lastName,
+    @JsonProperty("username") String username,
+    @JsonProperty("password") String password,
+    @JsonProperty("email") String email
+  ) {
+    this.name = name;
+    this.lastName = lastName;
+    this.username = username;
+    this.password = password;
+    this.email = email;
+  }
 }

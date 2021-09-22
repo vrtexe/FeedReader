@@ -2,7 +2,7 @@ package mk.finki.emt.feedreader.feeds.services;
 
 import java.util.Collection;
 import java.util.Set;
-import mk.finki.emt.feedreader.feeds.domain.models.ArticleCard;
+import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.FeedSubscription;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
@@ -12,19 +12,19 @@ public interface FeedService {
 
   void removeSource(String id);
 
-  Set<ArticleCard> updateArticlesForSource(String id) throws Exception;
+  Set<Article> updateArticlesForSource(String id) throws Exception;
 
-  Set<ArticleCard> updateAllArticles() throws Exception;
+  Set<Article> updateAllArticles() throws Exception;
 
   FeedSource findById(String id);
 
-  Set<ArticleCard> getAllArticles();
+  Set<Article> getAllArticles();
 
-  Set<ArticleCard> getAllArticlesForUser(
+  Set<Article> getAllArticlesForUser(
     Collection<FeedSubscription> feedSubscriptions
   );
 
-  Set<ArticleCard> getAllArticlesForSource(String id);
+  Set<Article> getAllArticlesForSource(String id);
 
   void addSubscriberToFeed(String id);
 

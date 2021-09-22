@@ -4,6 +4,7 @@ import java.time.Instant;
 import javax.persistence.Embeddable;
 import lombok.Getter;
 
+//Pri pravenjen subskripcija ili vilo kakvi izmeni se dobiva nov objekt soodvetno
 @Getter
 @Embeddable
 public class Subscription {

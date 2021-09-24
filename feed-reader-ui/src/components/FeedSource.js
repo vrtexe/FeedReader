@@ -34,27 +34,32 @@ class FeedSource extends Component {
             <div>{this.props.feedSource.subscribers}</div>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">
-            {this.state.username ? (
-              this.props.feedSource.subscribed ? (
-                <Button
-                  onClick={() =>
-                    this.props.handleUnsubscribe(this.props.feedSource.id.id)
-                  }
-                  className="mx-2"
-                  variant="primary"
-                >
-                  Unsubscribe
-                </Button>
+           {console.log(this.props.subbed)}
+            {this.props.subbed ? (
+              this.state.username ? (
+                this.props.feedSource.subscribed ? (
+                  <Button
+                    onClick={() =>
+                      this.props.handleUnsubscribe(this.props.feedSource.id.id)
+                    }
+                    className="mx-2"
+                    variant="primary"
+                  >
+                    Unsubscribe
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() =>
+                      this.props.handleSubscribe(this.props.feedSource.id.id)
+                    }
+                    className="mx-2"
+                    variant="primary"
+                  >
+                    Subscribe
+                  </Button>
+                )
               ) : (
-                <Button
-                  onClick={() =>
-                    this.props.handleSubscribe(this.props.feedSource.id.id)
-                  }
-                  className="mx-2"
-                  variant="primary"
-                >
-                  Subscribe
-                </Button>
+                ''
               )
             ) : (
               ''

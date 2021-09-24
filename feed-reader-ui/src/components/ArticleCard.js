@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 
 class ArticleCard extends Component {
   constructor(props) {
@@ -10,27 +10,43 @@ class ArticleCard extends Component {
   render() {
     return (
       <>
-        <Card className="mx-2 mb-2" style={{ width: '22rem' }}>
-          <Card.Img variant="top" cl src={this.props.article.image} />
-          <Card.Body>
-            <Card.Title>{this.props.article.title}</Card.Title>
-            <Card.Text>{this.props.article.summary}</Card.Text>
-            <Button
-              onClick={() =>
-                this.props.handleArticleOpen(
-                  this.props.article.link.url,
-                  this.props.article.title,
-                )
+        <Col>
+          <Card className="h-100 w-100">
+            <Card.Img
+              variant="top"
+              className="h-100"
+              src={
+                this.props.article.image
+                  ? this.props.article.image
+                  : 'https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png?w=640'
               }
-              variant="primary"
-            >
-              Go somewhere
-            </Button>
-          </Card.Body>
-          <Card.Footer className="text-muted form-control-sm">
-            Published on: {this.transformDate()}
-          </Card.Footer>
-        </Card>
+            />
+            <Card.Body>
+              <Card.Title>{this.props.article.title}</Card.Title>
+              <Card.Text>{this.props.article.summary}</Card.Text>
+              <Container>
+                <Row className="justify-content md-center">
+                  <Col>
+                    <Button
+                      onClick={() =>
+                        this.props.handleArticleOpen(
+                          this.props.article.link.url,
+                          this.props.article.title,
+                        )
+                      }
+                      variant="primary"
+                    >
+                      Open Article
+                    </Button>
+                  </Col>
+                </Row>
+              </Container>
+            </Card.Body>
+            <Card.Footer className="text-muted form-control-sm">
+              Published on: {this.transformDate()}
+            </Card.Footer>
+          </Card>
+        </Col>
       </>
     );
   }

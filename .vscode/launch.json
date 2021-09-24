@@ -24,7 +24,15 @@
 			"request": "launch",
 			"cwd": "${workspaceFolder}/feed-reader-ui",
 			"runtimeExecutable": "npm",
-			"runtimeArgs": ["run-script", "start"]
+			"runtimeArgs": ["run", "start"]
+		},
+		{
+			"name": "Launch Feed Reader UI",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${workspaceFolder}/feed-reader-ui",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "start"]
 		},
 		{
 			"type": "java",

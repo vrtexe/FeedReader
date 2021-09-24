@@ -22,6 +22,7 @@ class SettingsModal extends Component {
 
   async componentDidMount() {
     await this.loadFeedSources();
+    await this.loadUser();
   }
 
   handleSubmit = (e) => {

@@ -19,6 +19,7 @@ class FeedSourcePage extends Component {
   }
   async componentDidMount() {
     await this.loadFeedSources();
+    await this.loadUser();
   }
 
   handleSubmit = (e) => {
@@ -39,7 +40,6 @@ class FeedSourcePage extends Component {
           <Container style={{ height: '70vh' }} className="overflow-auto">
             {this.listSources()}
           </Container>
-
           <Form onSubmit={this.handleSubmit} className="w-100">
             <Form.Group className="mb-3 h-100" controlId="formBasicEmail">
               <Row>

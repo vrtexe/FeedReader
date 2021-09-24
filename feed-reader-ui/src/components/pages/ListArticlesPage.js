@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Container, Button } from 'react-bootstrap';
+import { Container, Button, Row } from 'react-bootstrap';
 import ArticleCard from '../ArticleCard';
 import EmbeddedHtmlModal from '../modal/EmbeddedHtmlModal';
 
@@ -62,9 +62,9 @@ class ListArticlesPage extends Component {
               ''
             )}
           </Container>
-          <div className="d-flex flex-wrap h-100 justify-content-center align-items-baseline my-1">
+          <Row xs={1} md={4} className="g-5">
             {this.listAllArticles()}
-          </div>
+          </Row>
           {this.state.url !== null ? (
             <EmbeddedHtmlModal
               url={this.state.url}

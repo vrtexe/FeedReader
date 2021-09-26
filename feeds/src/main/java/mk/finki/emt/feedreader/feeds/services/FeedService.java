@@ -6,6 +6,7 @@ import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.FeedSubscription;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
+import org.jsoup.nodes.Document;
 
 public interface FeedService {
   FeedSource addSource(FeedSourceForm form) throws Exception;
@@ -31,4 +32,6 @@ public interface FeedService {
   void removeSubscriberFromFeed(String id);
 
   Collection<FeedSource> getAll();
+
+  Document getArticlePage(String articleId);
 }

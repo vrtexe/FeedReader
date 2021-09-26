@@ -1,5 +1,6 @@
 package mk.finki.emt.feedreader.feeds.domain.models;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.HashSet;
@@ -9,17 +10,20 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import lombok.Getter;
+import mk.finki.emt.feedreader.feeds.domain.exceptions.TypeOfFeedNotSupportedException;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Author;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.FeedType;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Image;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Link;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.LinkContentType;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.AbstractEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 //Tuka se naogja pogolemata logika od ovoj modul
 @Getter
@@ -39,11 +43,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
 
   private Integer subscribers;
 
-  @OneToMany(
-    cascade = CascadeType.ALL,
-    orphanRemoval = true,
-    fetch = FetchType.EAGER
-  )
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private Set<Article> articles;
 
   protected FeedSource() {
@@ -57,284 +57,310 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     this.subscribers = 0;
   }
 
-  //Vo konstruktorot se proveruva dali e validen linkot, dokolku ne e nema da se kretira objekt
-  //tuku bi se frlilo exception
+  // Vo konstruktorot se proveruva dali e validen linkot, dokolku ne e nema da se
+  // kretira objekt
+  // tuku bi se frlilo exception
   public FeedSource(Link link) throws Exception {
     super(FeedSourceId.randomId(FeedSourceId.class));
     this.link = link;
+    this.articles = new HashSet<>();
 
-    Document document = link.ReadXML();
-    NodeList feeds = document.getElementsByTagName("feed");
-
-    FeedType type = FeedType.ATOM;
-    if (feeds.getLength() == 0) {
-      feeds = document.getElementsByTagName("rss");
-      type = FeedType.RSS;
-      if (feeds.getLength() == 0) {
-        throw new Exception("elements not found");
+    XMLStreamReader reader = link.openXMLStream();
+    try {
+      FeedType feedType = null;
+      if (reader.hasNext()) {
+        reader.next();
+        if (reader.isStartElement()) {
+          if (reader.getLocalName().equals("rss")) {
+            feedType = FeedType.RSS;
+          } else if (reader.getLocalName().equals("feed")) {
+            feedType = FeedType.ATOM;
+          } else {
+            throw new TypeOfFeedNotSupportedException();
+          }
+        }
       }
+      this.populateFieldsJsoup(reader, feedType);
+      this.updateArticlesStream(reader, feedType);
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      reader.close();
     }
-
-    articles = new HashSet<>();
-
-    if (type == FeedType.ATOM) {
-      Element element = (Element) feeds.item(0);
-
-      this.logo = null;
-      NodeList elementChildren = element.getElementsByTagName("logo");
-      if (elementChildren.getLength() != 0) {
-        logo =
-          new Image(
-            elementChildren.item(0).getTextContent(),
-            "Logo of the feed provider"
-          );
-      }
-      elementChildren = element.getElementsByTagName("icon");
-      if (elementChildren.getLength() != 0) {
-        logo =
-          new Image(
-            elementChildren.item(0).getTextContent(),
-            "Logo of the feed provider"
-          );
-      }
-    } else if (type == FeedType.RSS) {
-      Element element = (Element) document
-        .getElementsByTagName("channel")
-        .item(0);
-
-      this.title =
-        element.getElementsByTagName("title").item(0).getTextContent();
-
-      this.logo = null;
-      NodeList elementChildren = element.getElementsByTagName("image");
-      if (elementChildren.getLength() != 0) {
-        Element imageElement = (Element) elementChildren.item(0);
-
-        logo =
-          new Image(
-            imageElement.getElementsByTagName("url").item(0).getTextContent(),
-            imageElement.getElementsByTagName("title").item(0).getTextContent()
-          );
-      }
-
-      this.description =
-        element.getElementsByTagName("description").item(0).getTextContent();
-
-      this.copyright = null;
-      elementChildren = element.getElementsByTagName("copyright");
-      if (elementChildren.getLength() != 0) {
-        this.copyright = elementChildren.item(0).getTextContent();
-      }
-    }
-
-    this.subscribers = 0;
-
-    updateArticles();
   }
 
-  //Tuka se pravi chitanje na XLM i mapiranje
-  public Set<Article> updateArticles() throws Exception {
-    Document document = link.ReadXML();
-    NodeList feeds = document.getElementsByTagName("feed");
-
-    FeedType type = FeedType.ATOM;
-    if (feeds.getLength() == 0) {
-      feeds = document.getElementsByTagName("rss");
-      type = FeedType.RSS;
-      if (feeds.getLength() == 0) {
-        throw new Exception("elements not found");
-      }
-    }
-
+  // Tuka se pravi chitanje na XLM i mapiranje
+  private Set<Article> readRSSArticles(XMLStreamReader reader) throws XMLStreamException, ParseException, Exception {
     this.articles.removeAll(this.articles);
+    while (reader.hasNext()) {
+      if (reader.isStartElement()) {
+        String title = "";
+        Link link = null;
+        String summary = "";
+        String category = null;
+        Instant updated = null;
+        Author author = null;
+        Image image = null;
+        if (reader.getLocalName().equals("item")) {
+          while (reader.hasNext()) {
+            reader.next();
+            if (reader.isEndElement() && reader.getLocalName().equals("item")) {
+              break;
+            }
+            if (reader.isStartElement()) {
+              switch (reader.getLocalName()) {
+                case "title" -> {
+                  title = reader.getElementText();
+                }
+                case "link" -> {
+                  link = new Link(reader.getElementText(), LinkContentType.HTML);
+                }
+                case "description" -> {
+                  summary = reader.getElementText();
+                  summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
 
-    if (type == FeedType.ATOM) {
-      feeds = document.getElementsByTagName("entry");
-      for (
-        int i = 0;
-        i < (feeds.getLength() < 3 ? feeds.getLength() : 3);
-        i++
-      ) {
-        Node node = feeds.item(i);
-        if (node.getNodeType() == Node.ELEMENT_NODE) {
-          Element element = (Element) node;
-
-          String title = element
-            .getElementsByTagName("title")
-            .item(0)
-            .getTextContent();
-
-          Link link = new Link(
-            element.getElementsByTagName("id").item(0).getTextContent(),
-            LinkContentType.HTML
-          );
-
-          String summary = null;
-          NodeList elementChildren = element.getElementsByTagName("summary");
-          if (elementChildren.getLength() != 0) {
-            summary = elementChildren.item(0).getTextContent();
-          } else {
-            elementChildren = element.getElementsByTagName("content");
-            if (elementChildren.getLength() != 0) {
-              Element contentElement = (Element) elementChildren.item(0);
-              NodeList contentNodes = contentElement.getElementsByTagName("p");
-              if (contentNodes.getLength() != 0) {
-                summary = contentNodes.item(0).getTextContent();
-              } else {
-                summary = elementChildren.item(0).getTextContent();
+                }
+                case "category" -> {
+                  category = reader.getElementText();
+                }
+                case "pubDate" -> {
+                  updated = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").parse(reader.getElementText())
+                      .toInstant();
+                }
+                case "author" -> {
+                  author = new Author(reader.getElementText());
+                }
+                case "creator" -> {
+                  if (author == null) {
+                    author = new Author(reader.getElementText());
+                  }
+                }
+                case "thumbnail" -> {
+                  image = new Image(reader.getAttributeValue(null, "url"), "Displayed on Article card");
+                }
               }
             }
           }
-
-          summary = summary.trim();
-
-          while (summary.contains("<")) {
-            summary =
-              summary.substring(0, summary.indexOf("<")) +
-              summary.substring(summary.indexOf(">") + 1, summary.length() - 1);
-          }
-
-          summary = summary.trim();
-
-          if (summary.length() > 100) {
-            summary = summary.substring(0, 100);
-          }
-
-          String category = null;
-          elementChildren = element.getElementsByTagName("category");
-          if (elementChildren.getLength() != 0) {
-            category = elementChildren.item(0).getTextContent();
-          }
-
-          String date = element
-            .getElementsByTagName("updated")
-            .item(0)
-            .getTextContent();
-
-          Instant updated = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-            .parse(
-              date
-                .substring(0, date.lastIndexOf(":"))
-                .concat(
-                  date.substring(date.lastIndexOf(":") + 1, date.length())
-                )
-            )
-            .toInstant();
-
-          Author author = null;
-          elementChildren = element.getElementsByTagName("author");
-          if (elementChildren.getLength() != 0) {
-            if (elementChildren.item(0).getNodeType() == Node.ELEMENT_NODE) {
-              Element authorElement = (Element) elementChildren.item(0);
-
-              String name = authorElement
-                .getElementsByTagName("name")
-                .item(0)
-                .getTextContent();
-
-              String uri = null;
-              NodeList authorChildren = authorElement.getElementsByTagName(
-                "uri"
-              );
-              if (authorChildren.getLength() != 0) {
-                uri = authorChildren.item(0).getTextContent();
-              }
-
-              String email = null;
-              authorChildren = authorElement.getElementsByTagName("email");
-              if (authorChildren.getLength() != 0) {
-                email = authorChildren.item(0).getTextContent();
-              }
-
-              author = new Author(name, email, uri);
-            }
-          }
-
-          String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
-
-          articles.add(
-            new Article(title, link, summary, category, updated, author, image)
-          );
+          articles.add(new Article(title, link, summary, category, updated, author, image));
         }
       }
-    } else if (type == FeedType.RSS) {
-      feeds = document.getElementsByTagName("item");
-      for (
-        int i = 0;
-        i < (feeds.getLength() < 3 ? feeds.getLength() : 3);
-        i++
-      ) {
-        Node node = feeds.item(i);
-        if (node.getNodeType() == Node.ELEMENT_NODE) {
-          Element element = (Element) node;
-
-          String title = element
-            .getElementsByTagName("title")
-            .item(0)
-            .getTextContent();
-
-          Link link = new Link(
-            element.getElementsByTagName("link").item(0).getTextContent(),
-            LinkContentType.HTML
-          );
-
-          String summary = element
-            .getElementsByTagName("description")
-            .item(0)
-            .getTextContent();
-
-          while (summary.contains("<")) {
-            summary =
-              summary.substring(0, summary.indexOf("<")) +
-              summary.substring(summary.indexOf(">") + 1, summary.length() - 1);
-          }
-
-          if (summary.length() > 100) {
-            summary = summary.substring(0, 100);
-          }
-
-          String category = null;
-          NodeList elementChildren = element.getElementsByTagName("category");
-          if (elementChildren.getLength() != 0) {
-            category = elementChildren.item(0).getTextContent();
-          }
-
-          Instant updated = null;
-          elementChildren = element.getElementsByTagName("pubDate");
-          if (elementChildren.getLength() != 0) {
-            updated =
-              new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")
-                .parse(elementChildren.item(0).getTextContent())
-                .toInstant();
-          }
-
-          Author author = null;
-          elementChildren = element.getElementsByTagName("author");
-          if (elementChildren.getLength() != 0) {
-            author =
-              new Author(null, elementChildren.item(0).getTextContent(), null);
-          }
-
-          String image = link.ReadHtmlAndReturnFirstFoundImageUrl();
-
-          articles.add(
-            new Article(title, link, summary, category, updated, author, image)
-          );
-        }
-      }
+      reader.next();
     }
     return articles;
   }
 
-  //vo ovoj metod se zgolemuva brojot na subs za odreden source
+  private Set<Article> readAtomArticles(XMLStreamReader reader) throws Exception {
+    this.articles.removeAll(this.articles);
+    while (reader.hasNext()) {
+      if (reader.isStartElement()) {
+        String title = "";
+        Link link = null;
+        String summary = "";
+        String category = null;
+        Instant updated = null;
+        Author author = null;
+        Image image = null;
+        if (reader.getLocalName().equals("entry")) {
+          while (reader.hasNext()) {
+            if (reader.isEndElement() && reader.getLocalName().equals("entry")) {
+              break;
+            }
+            reader.next();
+            if (reader.isStartElement()) {
+              switch (reader.getLocalName()) {
+                case "title" -> {
+                  title = reader.getElementText();
+                }
+                case "id" -> {
+                  link = new Link(reader.getElementText(), LinkContentType.HTML);
+                }
+                case "summary" -> {
+                  summary = reader.getElementText();
+                  summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                }
+                case "content" -> {
+                  if (summary.isEmpty()) {
+                    String typeAttr = reader.getAttributeValue(null, "type");
+                    if (typeAttr != null && typeAttr.equals("html")) {
+                      String html = reader.getElementText();
+                      Document doc = Jsoup.parse(html);
+                      Elements elements = doc.getElementsByTag("img");
+                      if (!elements.isEmpty()) {
+                        image = new Image(elements.first().attr("src"), elements.first().attr("alt"));
+                      }
+                      elements = doc.getElementsByTag("p");
+                      if (!elements.isEmpty()) {
+                        summary = elements.first().text();
+                      }
+                    } else {
+                      summary = reader.getElementText();
+                      summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                    }
+                  }
+                }
+                case "category" -> {
+                  category = reader.getElementText();
+                }
+                case "updated" -> {
+                  String date = reader.getElementText();
+                  updated = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                      .parse(date.substring(0, date.lastIndexOf(":"))
+                          .concat(date.substring(date.lastIndexOf(":") + 1, date.length())))
+                      .toInstant();
+                }
+                case "author" -> {
+                  author = Author.createFromXmlStream(reader);
+                }
+              }
+            }
+          }
+          articles.add(new Article(title, link, summary, category, updated, author, image));
+        }
+      }
+      reader.next();
+    }
+    return articles;
+  }
+
+  public Set<Article> updateArticlesStream(XMLStreamReader reader, FeedType type) throws Exception {
+    if (type == FeedType.RSS) {
+      return readRSSArticles(reader);
+    } else if (type == FeedType.ATOM) {
+      return readAtomArticles(reader);
+    } else {
+      return null;
+    }
+  }
+
+  public Set<Article> updateArticlesStream() {
+    XMLStreamReader reader = link.openXMLStream();
+    FeedType feedType = null;
+    try {
+      if (reader.hasNext()) {
+        reader.next();
+        if (reader.isStartElement()) {
+          if (reader.getLocalName().equals("rss")) {
+            feedType = FeedType.RSS;
+          } else if (reader.getLocalName().equals("feed")) {
+            feedType = FeedType.ATOM;
+          } else {
+            throw new TypeOfFeedNotSupportedException();
+          }
+        }
+      }
+      if (feedType == FeedType.RSS) {
+        return readRSSArticles(reader);
+      } else if (feedType == FeedType.ATOM) {
+        return readAtomArticles(reader);
+      } else {
+        return null;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        reader.close();
+      } catch (XMLStreamException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return null;
+  }
+
+  // vo ovoj metod se zgolemuva brojot na subs za odreden source
   public FeedSource addSubscriber() {
     this.subscribers++;
     return this;
   }
 
-  //vo ovoj metod se zgolemuva brojot na subs za odreden source
+  // vo ovoj metod se zgolemuva brojot na subs za odreden source
   public FeedSource removeSubscriber() {
     this.subscribers--;
     return this;
+  }
+
+  private void populateFieldsJsoup(XMLStreamReader reader, FeedType type) throws Exception {
+    if (type == FeedType.RSS) {
+      populateForRss(reader);
+    } else if (type == FeedType.ATOM) {
+      populateForAtom(reader);
+    }
+  }
+
+  private void populateForAtom(XMLStreamReader reader) throws Exception {
+    while (reader.hasNext()) {
+      reader.next();
+      if (reader.isStartElement()) {
+        if (reader.getLocalName().equals("entry")) {
+          break;
+        }
+        switch (reader.getLocalName()) {
+          case "title" -> {
+            this.title = reader.getElementText();
+          }
+          case "icon" -> {
+            this.logo = new Image(reader.getElementText(), "Logo of the feed provider");
+          }
+          case "logo" -> {
+            if (this.logo == null) {
+              this.logo = new Image(reader.getElementText(), "Logo of the feed provider");
+            }
+          }
+          case "rights" -> {
+            this.copyright = reader.getElementText();
+          }
+          case "subtitle" -> {
+            this.description = reader.getElementText();
+          }
+        }
+
+      }
+    }
+    this.subscribers = 0;
+  }
+
+  private void populateForRss(XMLStreamReader reader) throws XMLStreamException {
+    while (reader.hasNext()) {
+      reader.next();
+      if (reader.isStartElement()) {
+        if (reader.getLocalName().equals("item")) {
+          break;
+        }
+        switch (reader.getLocalName()) {
+          case "title" -> {
+            this.title = reader.getElementText();
+          }
+          case "image" -> {
+            String imageAlt = null;
+            String imageSrc = null;
+            while (reader.hasNext()) {
+              reader.next();
+              if (reader.isEndElement() && reader.getLocalName().equals("image")) {
+                break;
+              }
+              if (reader.isStartElement()) {
+                switch (reader.getLocalName()) {
+                  case "title" -> {
+                    imageAlt = reader.getElementText();
+                  }
+                  case "url" -> {
+                    imageSrc = reader.getElementText();
+                  }
+                }
+              }
+            }
+            this.logo = new Image(imageSrc, imageAlt);
+          }
+          case "copyright" -> {
+            this.copyright = reader.getElementText();
+          }
+          case "description" -> {
+            this.description = reader.getElementText();
+          }
+        }
+      }
+    }
+    this.subscribers = 0;
   }
 }

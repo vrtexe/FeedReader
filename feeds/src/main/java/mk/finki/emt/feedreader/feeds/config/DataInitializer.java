@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
-// import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;
 
 //Klatata beshe koristena za postavuvanje na podatoci vo bazata
-// @Component
+@Component
 @AllArgsConstructor
 public class DataInitializer {
 
@@ -20,7 +20,6 @@ public class DataInitializer {
       FeedSource feedSource = feedService.addSource(
         new FeedSourceForm("https://www.buzzfeed.com/world.xml")
       );
-      feedService.getAllArticles();
       feedService.getAllArticlesForSource(feedSource.getId().getId());
       feedSource =
         feedService.addSource(
@@ -30,9 +29,10 @@ public class DataInitializer {
       feedService.updateAllArticles();
       feedSource =
         feedService.addSource(
-          new FeedSourceForm("https://www.polygon.com/rss/index.xml")
+          new FeedSourceForm("https://www.pcgamer.com/rss/")
         );
       feedService.removeSource(feedSource.getId().getId());
     }
   }
 }
+//https://www.polygon.com/rss/index.xml

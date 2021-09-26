@@ -122,14 +122,16 @@ class SettingsModal extends Component {
     let data = await response.json();
     let userSources = await this.loadUSerFeedSources();
     this.setState({
-      feedSources: data.map((feedSource) => {
-        feedSource.subscribed = userSources.find(
-          (userSource) => userSource.feedSourceId.id === feedSource.id.id,
-        )
-          ? true
-          : false;
-        return feedSource;
-      }),
+      feedSources: data
+        .map((feedSource) => {
+          feedSource.subscribed = userSources.find(
+            (userSource) => userSource.feedSourceId.id === feedSource.id.id,
+          )
+            ? true
+            : false;
+          return feedSource;
+        })
+        .sort((a, b) => b.subscribers - a.subscribers),
     });
   };
 

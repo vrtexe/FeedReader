@@ -14,10 +14,15 @@ class ArticleCard extends Component {
           <Card className="h-100 w-100">
             <Card.Img
               variant="top"
-              className="h-100"
+              className="h-100 w-100"
               src={
                 this.props.article.image
-                  ? this.props.article.image
+                  ? this.props.article.image.imageUrl
+                  : 'https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png?w=640'
+              }
+              alt={
+                this.props.article.image
+                  ? this.props.article.image.imageAlt
                   : 'https://socialistmodernism.com/wp-content/uploads/2017/07/placeholder-image.png?w=640'
               }
             />
@@ -25,11 +30,12 @@ class ArticleCard extends Component {
               <Card.Title>{this.props.article.title}</Card.Title>
               <Card.Text>{this.props.article.summary}</Card.Text>
               <Container>
-                <Row className="justify-content md-center">
-                  <Col>
+                <Row className="justify-center align-items-center lg-center md-center">
+                  <Col className="d-flex flex-row justify-content-center">
                     <Button
                       onClick={() =>
                         this.props.handleArticleOpen(
+                          this.props.article.id.id,
                           this.props.article.link.url,
                           this.props.article.title,
                         )

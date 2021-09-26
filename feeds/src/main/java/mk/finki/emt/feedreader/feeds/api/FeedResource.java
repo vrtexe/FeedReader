@@ -7,6 +7,7 @@ import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
+import mk.finki.emt.feedreader.feeds.services.types.HtmlDocument;
 import mk.finki.emt.feedreader.sharedkernel.domain.types.ActionCompleted;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,20 @@ public class FeedResource {
     }
   }
 
+  @GetMapping("/article/{articleId}")
+  public ResponseEntity<HtmlDocument> getArticlePage(
+    @PathVariable String articleId
+  ) {
+    try {
+      return new ResponseEntity<>(
+        new HtmlDocument(service.getArticlePage(articleId).html()),
+        HttpStatus.OK
+      );
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   //So ovoj metod se dobivaat site artikli za soodveten korisnik
   @GetMapping("/user/{username}")
   public ResponseEntity<Collection<Article>> getAllArticlesForUser(
@@ -80,10 +95,10 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dodava nov source vo bazata
+  //So ovoj metod se dodava nov source vo bazata na podatoci
   @PostMapping
   public ResponseEntity<FeedSource> addNewSource(
-    @RequestBody(required = false) FeedSourceForm form
+    @RequestBody FeedSourceForm form
   ) {
     try {
       return new ResponseEntity<>(service.addSource(form), HttpStatus.OK);
@@ -108,8 +123,19 @@ public class FeedResource {
     }
   }
 
+  //So ovoj metod se pravi updejt na site artiklli vo vo programata
+  //Ova mozhi da potraj malku podolgo poradi chitanje na XML fajlot
+  @GetMapping("/articles/update")
+  public ResponseEntity<Collection<Article>> updateArticlesForAllSources() {
+    try {
+      return new ResponseEntity<>(service.updateAllArticles(), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   //So ovoj metod se pravi updejt na site artiklli vo odredeniot source
-  @GetMapping("/articles/update/{id}")
+  @GetMapping("/article/update/{id}")
   public ResponseEntity<Collection<Article>> updateArticlesForSource(
     @PathVariable String id
   ) {
@@ -118,19 +144,6 @@ public class FeedResource {
         service.updateArticlesForSource(id),
         HttpStatus.OK
       );
-    } catch (Exception e) {
-      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  //So ovoj metod se pravi updejt na site artiklli vo vo programata
-  //Ova mozhi da potraj malku podolgo poradi chitanje na XML fajlot
-  @GetMapping("/articles/update")
-  public ResponseEntity<Collection<Article>> updateArticlesForAllSource(
-    @PathVariable String id
-  ) {
-    try {
-      return new ResponseEntity<>(service.updateAllArticles(), HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }

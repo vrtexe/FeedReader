@@ -8,6 +8,7 @@ class ListArticlesPage extends Component {
     super(props);
     this.state = {
       articles: [],
+      id: null,
       url: null,
       title: null,
       personalized: false,
@@ -22,13 +23,15 @@ class ListArticlesPage extends Component {
 
   handleClose = () => {
     this.setState({
+      id: null,
       url: null,
       title: null,
     });
   };
 
-  handleArticleOpen = (url, title) => {
+  handleArticleOpen = (id, url, title) => {
     this.setState({
+      id,
       url,
       title,
     });
@@ -62,11 +65,12 @@ class ListArticlesPage extends Component {
               ''
             )}
           </Container>
-          <Row xs={1} md={4} className="g-5">
+          <Row sm={1} md={2} lg={3} className="g-5">
             {this.listAllArticles()}
           </Row>
           {this.state.url !== null ? (
             <EmbeddedHtmlModal
+              id={this.state.id}
               url={this.state.url}
               title={this.state.title}
               handleClose={this.handleClose}

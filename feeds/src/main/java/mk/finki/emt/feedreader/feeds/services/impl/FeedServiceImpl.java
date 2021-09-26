@@ -9,6 +9,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import lombok.AllArgsConstructor;
+import mk.finki.emt.feedreader.feeds.domain.exceptions.ArticleNotFoundException;
+import mk.finki.emt.feedreader.feeds.domain.exceptions.FeedSourceAlreadyExistsException;
 import mk.finki.emt.feedreader.feeds.domain.exceptions.FeedSourceNotFoundException;
 import mk.finki.emt.feedreader.feeds.domain.models.Article;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
@@ -19,6 +21,7 @@ import mk.finki.emt.feedreader.feeds.domain.valueObjects.Link;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.LinkContentType;
 import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
 //Sekoj metod soodvetstvuva na kontrolerot
@@ -43,6 +46,9 @@ public class FeedServiceImpl implements FeedService {
         constraintViolations
       );
     }
+    if (repository.findFirstByLinkUrl(form.getUrl()).isPresent()) {
+      throw new FeedSourceAlreadyExistsException();
+    }
     return repository.saveAndFlush(
       new FeedSource(new Link(form.getUrl(), LinkContentType.XML))
     );
@@ -66,7 +72,7 @@ public class FeedServiceImpl implements FeedService {
     FeedSource feedSource = repository
       .findById(new FeedSourceId(id))
       .orElseThrow(FeedSourceNotFoundException::new);
-    Set<Article> articles = feedSource.updateArticles();
+    Set<Article> articles = feedSource.updateArticlesStream();
     repository.saveAndFlush(feedSource);
     return articles;
   }
@@ -79,7 +85,7 @@ public class FeedServiceImpl implements FeedService {
       .filter(
         source -> {
           try {
-            source.updateArticles();
+            source.updateArticlesStream();
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -162,5 +168,18 @@ public class FeedServiceImpl implements FeedService {
         .orElseThrow(FeedSourceNotFoundException::new)
         .removeSubscriber()
     );
+  }
+
+  @Override
+  public Document getArticlePage(String articleId) {
+    return repository
+      .findAll()
+      .stream()
+      .flatMap(feed -> feed.getArticles().stream())
+      .filter(article -> article.getId().getId().equals(articleId))
+      .findFirst()
+      .orElseThrow(ArticleNotFoundException::new)
+      .getLink()
+      .getHtmlContent();
   }
 }

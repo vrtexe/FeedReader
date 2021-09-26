@@ -18,23 +18,22 @@ class FeedSource extends Component {
   render() {
     return (
       <>
-        <Row className="mb-2">
-          <Col md={1}>
+        <Row style={{height: '2em'}} className="mb-2">
+          <Col className="p-0 h-100" sm={1}>
             <Image
               className="w-100 h-100"
-              src={this.props.feedSource.logo.imageUrl}
-              alt={this.props.feedSource.logo.imageAlt}
+              src={this.props.feedSource.logo ? this.props.feedSource.logo.imageUrl : ''}
+              alt={this.props.feedSource.logo ? this.props.feedSource.logo.imageAlt:''}
               roundedCircle
             ></Image>
           </Col>
-          <Col className="d-flex justify-content-start align-items-center px-5">
+          <Col className="align-self-center justify-self-center">
             <div>{this.props.feedSource.link.url}</div>
           </Col>
-          <Col md={1}>
+          <Col className="align-self-center justify-self-end" sm={1} >
             <div>{this.props.feedSource.subscribers}</div>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">
-           {console.log(this.props.subbed)}
             {this.props.subbed ? (
               this.state.username ? (
                 this.props.feedSource.subscribed ? (

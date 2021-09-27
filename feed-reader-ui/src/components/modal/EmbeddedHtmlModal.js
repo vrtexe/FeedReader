@@ -10,7 +10,7 @@ class EmbeddedHtmlModal extends Component {
   }
 
   async componentDidMount() {
-    await this.loadArticlePage().catch((error) => {
+    void this.loadArticlePage().catch((error) => {
       console.log(error);
     });
   }
@@ -31,7 +31,7 @@ class EmbeddedHtmlModal extends Component {
             <iframe
               style={{ height: '80vh' }}
               className="w-100"
-              src={this.props.url}
+              srcDoc={this.state.htmlContent}
               title={this.props.title}
             ></iframe>
           </Modal.Body>

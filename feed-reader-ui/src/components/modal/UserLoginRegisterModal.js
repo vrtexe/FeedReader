@@ -23,6 +23,48 @@ class UserLoginModal extends Component {
     };
   }
 
+  handleFirstNameInput = (e) => {
+    this.setState({
+      name: e.target.value,
+    });
+  };
+
+  handleLastNameInput = (e) => {
+    this.setState({
+      lastName: e.target.value,
+    });
+  };
+
+  handleUsernameInput = (e) => {
+    this.setState({
+      username: e.target.value,
+    });
+  };
+
+  handlePasswordInput = (e) => {
+    this.setState({
+      password: e.target.value,
+    });
+  };
+
+  handleEmailInput = (e) => {
+    this.setState({
+      email: e.target.value,
+    });
+  };
+
+  handleFormSwitch = () => {
+    this.setState({
+      loginMode: !this.state.loginMode,
+    });
+  };
+
+  handleFormSwitch = () => {
+    this.setState({
+      loginMode: !this.state.loginMode,
+    });
+  };
+
   handleRegisterSubmit = async (e) => {
     e.preventDefault();
     let credentials = {
@@ -47,13 +89,12 @@ class UserLoginModal extends Component {
         return response.json();
       })
       .then((data) => {
-        localStorage.setItem('username', data.username);
+        this.props.handleUpdateUsername(data.username);
         this.props.handleClose();
       })
       .catch((error) => {
         console.log(error.message);
       });
-    this.props.handleUpdateUsername();
   };
 
   handleLoginSubmit = async (e) => {
@@ -77,13 +118,12 @@ class UserLoginModal extends Component {
         return response.json();
       })
       .then((data) => {
-        localStorage.setItem('username', data.username);
+        this.props.handleUpdateUsername(data.username);
         this.props.handleClose();
       })
       .catch((error) => {
         console.log(error.message);
       });
-    this.props.handleUpdateUsername();
   };
 
   render() {
@@ -241,47 +281,6 @@ class UserLoginModal extends Component {
       </>
     );
   }
-  handleFirstNameInput = (e) => {
-    this.setState({
-      name: e.target.value,
-    });
-  };
-
-  handleLastNameInput = (e) => {
-    this.setState({
-      lastName: e.target.value,
-    });
-  };
-
-  handleUsernameInput = (e) => {
-    this.setState({
-      username: e.target.value,
-    });
-  };
-
-  handlePasswordInput = (e) => {
-    this.setState({
-      password: e.target.value,
-    });
-  };
-
-  handleEmailInput = (e) => {
-    this.setState({
-      email: e.target.value,
-    });
-  };
-
-  handleFormSwitch = () => {
-    this.setState({
-      loginMode: !this.state.loginMode,
-    });
-  };
-
-  handleFormSwitch = () => {
-    this.setState({
-      loginMode: !this.state.loginMode,
-    });
-  };
 }
 
 export default UserLoginModal;

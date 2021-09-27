@@ -5,7 +5,7 @@ import UserProfilePage from './components/pages/ProfilePage';
 import Header from './layout/Header';
 import './style/css/App.css';
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Header />
@@ -23,5 +23,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

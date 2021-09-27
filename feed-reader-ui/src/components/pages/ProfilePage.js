@@ -1,56 +1,23 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import allActions from '../../store/actions';
 
-class UserProfilePage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: null,
-    };
-  }
+const UserProfilePage = () => {
+  const [userInfo, setUserInfo] = useState(null);
+  const user = useSelector((state) => state.currentUser, shallowEqual);
+  const dispatch = useDispatch();
 
-  async componentDidMount() {
-    await this.loadUser();
-  }
+  useEffect(() => {
+    loadUser();
+  }, []);
 
-  render() {
-    return (
-      <>
-        {this.state.user ? (
-          <Container>
-            <Row>
-              <Col>{this.state.user.name}</Col>
-              <Col>{this.state.user.lastName}</Col>
-              <Col></Col>
-              <Col>{this.state.user.email}</Col>
-            </Row>
-            <Row>
-              <Col>
-                {!this.state.user.subscription.isSubscibed ? (
-                  <Button onClick={this.handleSubscribe}>Subscribe</Button>
-                ) : (
-                  <Button onClick={this.handleUnsubscribe}>Unsubscribe</Button>
-                )}
-              </Col>
-              <Col>
-                {this.transformDate(this.state.user.subscription.since)}
-              </Col>
-            </Row>
-          </Container>
-        ) : (
-          ''
-        )}
-      </>
-    );
-  }
-
-  loadUser = async () => {
-    let username = localStorage.getItem('username');
-    if (!username) {
-      return [];
+  const loadUser = async () => {
+    if (!user.username) {
+      return;
     }
     let response = await fetch(
-      `http://localhost:9091/api/subscriptions/authenticated/${username}`,
+      `http://localhost:9091/api/subscriptions/authenticated/${user.username}`,
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -58,15 +25,13 @@ class UserProfilePage extends Component {
       },
     );
     let data = await response.json();
-    console.log(data);
-    this.setState({
-      user: data,
-    });
+    setUserInfo(data);
+    return data;
   };
 
-  handleSubscribe = async (id) => {
+  const handleSubscribe = async (id) => {
     await fetch(
-      `http://localhost:9091/api/subscriptions/subscribe/${this.state.user.authentication.username}`,
+      `http://localhost:9091/api/subscriptions/subscribe/${userInfo.authentication.username}`,
       {
         method: 'PATCH',
         headers: {
@@ -78,16 +43,22 @@ class UserProfilePage extends Component {
         if (!response.ok) {
           throw new Error('Request failed');
         }
-        this.loadUser();
+        return loadUser();
+      })
+      .then((data) => {
+        console.log(data);
+        dispatch(
+          allActions.userActions.setSubscribed(data.subscription.isSubscibed),
+        );
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  handleUnsubscribe = async () => {
+  const handleUnsubscribe = async () => {
     await fetch(
-      `http://localhost:9091/api/subscriptions/unsubscribe/${this.state.user.authentication.username}`,
+      `http://localhost:9091/api/subscriptions/unsubscribe/${userInfo.authentication.username}`,
       {
         method: 'PATCH',
         headers: {
@@ -99,14 +70,18 @@ class UserProfilePage extends Component {
         if (!response.ok) {
           throw new Error('Request failed');
         }
-        this.loadUser();
+        return loadUser();        
+      }).then(data => {
+        dispatch(
+          allActions.userActions.setSubscribed(data.subscription.isSubscibed),
+        );
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  transformDate = (d) => {
+  const transformDate = (d) => {
     let date = new Date(Date.parse(d));
     return (
       (date.getDate().toString().length === 1
@@ -128,6 +103,32 @@ class UserProfilePage extends Component {
         : date.getMinutes())
     );
   };
-}
+  return (
+    <>
+      {userInfo ? (
+        <Container>
+          <Row>
+            <Col>{userInfo.name}</Col>
+            <Col>{userInfo.lastName}</Col>
+            <Col></Col>
+            <Col>{userInfo.email}</Col>
+          </Row>
+          <Row>
+            <Col>
+              {!userInfo.subscription.isSubscibed ? (
+                <Button onClick={handleSubscribe}>Subscribe</Button>
+              ) : (
+                <Button onClick={handleUnsubscribe}>Unsubscribe</Button>
+              )}
+            </Col>
+            <Col>{transformDate(userInfo.subscription.since)}</Col>
+          </Row>
+        </Container>
+      ) : (
+        ''
+      )}
+    </>
+  );
+};
 
 export default UserProfilePage;

@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Col,
   Container,
@@ -7,102 +7,89 @@ import {
   Row,
   Button,
 } from 'react-bootstrap';
+import { shallowEqual, useSelector } from 'react-redux';
 import FeedSource from '../FeedSource';
 
-class FeedSourcePage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      feedSources: [],
-      user: false,
-    };
-  }
-  async componentDidMount() {
-    await this.loadFeedSources();
-    await this.loadUser();
-  }
+const FeedSourcePage = () => {
+  const [feedSources, setFeedSources] = useState([]);
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const user = useSelector((state) => state.currentUser, shallowEqual);
 
-  handleSubmit = (e) => {
+  useEffect(() => {
+    setLoading(true);
+    loadFeedSources();
+  }, []);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    this.addFeedSource(this.state.url);
+    addFeedSource(url);
   };
 
-  handleUrlWrite = (e) => {
-    this.setState({
-      url: e.target.value,
-    });
+  const handleUrlWrite = (e) => {
+    setUrl(e.target.value);
   };
 
-  render() {
-    return (
-      <>
-        <Container className="py-5">
-          <Container style={{ height: '70vh' }} className="overflow-auto">
-            {this.listSources()}
-          </Container>
-          <Form onSubmit={this.handleSubmit} className="w-100">
-            <Form.Group className="mb-3 h-100" controlId="formBasicEmail">
-              <Row>
-                <Col className="align-items-center">
-                  <FloatingLabel
-                    controlId="floatingInput"
-                    label="URL"
-                    className="mb-3"
-                  >
-                    <Form.Control
-                      type="text"
-                      onChange={this.handleUrlWrite}
-                      value={this.state.url}
-                      placeholder="https://someUrl/rss.xml"
-                    />
-                  </FloatingLabel>
-                </Col>
-                <Col className="h-100 align-items-center p-1" md="1">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="h-100"
-                    type="submit"
-                    disabled={this.state.loading}
-                  >
-                    Add
-                  </Button>
-                </Col>
-              </Row>
-            </Form.Group>
-          </Form>
-        </Container>
-      </>
-    );
-  }
-  listSources() {
-    return this.state.feedSources.length === 0 ? (
-      <p>There are no sources</p>
-    ) : (
-      this.state.feedSources.map((fs) => (
-        <FeedSource
-          key={fs.id.id}
-          feedSource={fs}
-          subbed={this.state.user}
-          removeFeedSource={this.removeFeedSource}
-          handleSubscribe={this.handleSubscribe}
-          handleUnsubscribe={this.handleUnsubscribe}
-          loading={this.state.loading}
-        />
-      ))
-    );
-  }
+  const handleSubscribe = async (id) => {
+    setLoading(true);
+    let subscriptionForm = {
+      username: user.username,
+      feedSourceId: id,
+    };
+    await fetch('http://localhost:9091/api/subscriptions/feed/subscribe', {
+      method: 'POST',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscriptionForm),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+        setTimeout(loadFeedSources, 300);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-  loadFeedSources = async () => {
+  const handleUnsubscribe = async (id) => {
+    setLoading(true);
+    let subscriptionForm = {
+      username: user.username,
+      feedSourceId: id,
+    };
+    await fetch('http://localhost:9091/api/subscriptions/feed/unsubscribe', {
+      method: 'POST',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscriptionForm),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+        setTimeout(loadFeedSources, 300);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const loadFeedSources = async () => {
     let response = await fetch('http://localhost:9090/api/feeds', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
     });
     let data = await response.json();
-    let userSources = await this.loadUSerFeedSources();
-    this.setState({
-      feedSources: data
+    let userSources = await loadUSerFeedSources();
+    setFeedSources(
+      data
         .map((feedSource) => {
           feedSource.subscribed = userSources.find(
             (userSource) => userSource.feedSourceId.id === feedSource.id.id,
@@ -112,16 +99,16 @@ class FeedSourcePage extends Component {
           return feedSource;
         })
         .sort((a, b) => b.subscribers - a.subscribers),
-    });
+    );
+    setLoading(false);
   };
 
-  loadUSerFeedSources = async () => {
-    let username = localStorage.getItem('username');
-    if (!username) {
+  const loadUSerFeedSources = async () => {
+    if (!user.username) {
       return [];
     }
     let response = await fetch(
-      `http://localhost:9091/api/subscriptions/${username}`,
+      `http://localhost:9091/api/subscriptions/${user.username}`,
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -132,29 +119,8 @@ class FeedSourcePage extends Component {
     return data;
   };
 
-  loadUser = async () => {
-    let username = localStorage.getItem('username');
-    if (!username) {
-      return [];
-    }
-    let response = await fetch(
-      `http://localhost:9091/api/subscriptions/authenticated/${username}`,
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      },
-    );
-    let data = await response.json();
-    this.setState({
-      user: data.subscription.isSubscibed,
-    });
-  };
-
-  addFeedSource = async (url) => {
-    this.setState({
-      loading: true,
-    });
+  const addFeedSource = async (url) => {
+    setLoading(true);
     let newFeedSource = { url };
     await fetch('http://localhost:9090/api/feeds', {
       method: 'POST',
@@ -171,17 +137,15 @@ class FeedSourcePage extends Component {
         return response.json();
       })
       .then((data) => {
-        this.setState({
-          feedSources: [...this.state.feedSources, data],
-          loading: false,
-        });
+        setFeedSources([...feedSources, data]);
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  removeFeedSource = async (id) => {
+  const removeFeedSource = async (id) => {
     await fetch(`http://localhost:9090/api/feeds/${id}`, {
       method: 'DELETE',
       headers: {
@@ -192,10 +156,8 @@ class FeedSourcePage extends Component {
         if (!response.ok) {
           throw new Error('Request failed');
         } else {
-          this.setState({
-            loading: false,
-            feedSources: this.state.feedSources.filter((v) => v.id.id !== id),
-          });
+          setFeedSources(feedSources.filter((v) => v.id.id !== id));
+          setLoading(false);
         }
       })
       .catch((error) => {
@@ -203,55 +165,64 @@ class FeedSourcePage extends Component {
       });
   };
 
-  handleSubscribe = async (id) => {
-    let username = localStorage.getItem('username');
-    let subscriptionForm = {
-      username: username,
-      feedSourceId: id,
-    };
-    await fetch('http://localhost:9091/api/subscriptions/feed/subscribe', {
-      method: 'POST',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(subscriptionForm),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Request failed');
-        }
-        this.loadFeedSources();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const listSources = () => {
+    return feedSources.length === 0 ? (
+      <p>There are no sources</p>
+    ) : (
+      feedSources.map((fs) => (
+        <FeedSource
+          key={fs.id.id}
+          feedSource={fs}
+          subbed={user.subscribed}
+          handleSubscribe={handleSubscribe}
+          handleUnsubscribe={handleUnsubscribe}
+          removeFeedSource={removeFeedSource}
+          loading={loading}
+        />
+      ))
+    );
   };
 
-  handleUnsubscribe = async (id) => {
-    let username = localStorage.getItem('username');
-    let subscriptionForm = {
-      username: username,
-      feedSourceId: id,
-    };
-    await fetch('http://localhost:9091/api/subscriptions/feed/unsubscribe', {
-      method: 'POST',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(subscriptionForm),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Request failed');
-        }
-        this.loadFeedSources();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-}
+  return (
+    <>
+      <Container className="py-5">
+        <Container style={{ height: '70vh' }} className="overflow-auto">
+          {listSources()}
+        </Container>
+        <Form onSubmit={handleSubmit} className="w-100">
+          <Form.Group className="mb-3 h-100" controlId="formBasicEmail">
+            <Row>
+              <Col className="align-items-center">
+                <FloatingLabel
+                  controlId="floatingInput"
+                  label="URL"
+                  className="mb-3"
+                >
+                  <Form.Control
+                    type="text"
+                    onChange={handleUrlWrite}
+                    value={url}
+                    placeholder="https://someUrl/rss.xml"
+                  />
+                </FloatingLabel>
+              </Col>
+              <Col className="h-100 align-items-center p-1" md="1">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="h-100"
+                  type="submit"
+                  disabled={loading}
+                >
+                  Add
+                </Button>
+              </Col>
+            </Row>
+          </Form.Group>
+        </Form>
+      </Container>
+    </>
+  );
+};
 
 export default FeedSourcePage;

@@ -1,95 +1,53 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Button, Row } from 'react-bootstrap';
+import { shallowEqual, useSelector } from 'react-redux';
 import ArticleCard from '../ArticleCard';
 import EmbeddedHtmlModal from '../modal/EmbeddedHtmlModal';
 
-class ListArticlesPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      articles: [],
-      id: null,
-      url: null,
-      title: null,
-      personalized: false,
-      user: null,
-    };
-  }
+const ListArticlesPage = () => {
+  const [articles, setArticles] = useState([]);
+  const [id, setId] = useState(null);
+  const [url, setUrl] = useState(null);
+  const [title, setTitle] = useState(null);
+  const [personalized, setPersonalized] = useState(false);
+  const user = useSelector((state) => state.currentUser, shallowEqual);
 
-  componentDidMount() {
-    this.loadAllArticles();
-    this.loadUser();
-  }
+  useEffect(() => {
+    loadAllArticles();
+    console.log(user)
+  }, []);
 
-  handleClose = () => {
-    this.setState({
-      id: null,
-      url: null,
-      title: null,
-    });
+  const handleClose = () => {
+    setId(null);
+    setUrl(null);
+    setTitle(null);
   };
 
-  handleArticleOpen = (id, url, title) => {
-    this.setState({
-      id,
-      url,
-      title,
-    });
+  const handleArticleOpen = (id, url, title) => {
+    setId(id);
+    setUrl(url);
+    setTitle(title);
   };
 
-  handlePersonalizedSwitch = async () => {
-    this.setState({
-      personalized: !this.state.personalized,
-    });
-    await this.reloadArticles();
+  const handlePersonalizedSwitch = async () => {
+    setPersonalized(!personalized);
+    await reloadArticles();
   };
 
-  reloadArticles = async () => {
-    if (!this.state.personalized) {
-      await this.loadAllPersonalizedArticles();
+  const reloadArticles = async () => {
+    if (!personalized) {
+      await loadAllPersonalizedArticles();
     } else {
-      await this.loadAllArticles();
+      await loadAllArticles();
     }
   };
-
-  render() {
-    return (
-      <>
-        <Container>
-          <Container className="p-2">
-            {this.state.user ? (
-              <Button onClick={this.handlePersonalizedSwitch}>
-                Switch to personalized
-              </Button>
-            ) : (
-              ''
-            )}
-          </Container>
-          <Row sm={1} md={2} lg={3} className="g-5">
-            {this.listAllArticles()}
-          </Row>
-          {this.state.url !== null ? (
-            <EmbeddedHtmlModal
-              id={this.state.id}
-              url={this.state.url}
-              title={this.state.title}
-              handleClose={this.handleClose}
-            />
-          ) : (
-            ''
-          )}
-        </Container>
-      </>
-    );
-  }
-
-  listAllArticles = () => {
-    return this.state.articles.length === 0 ? (
+  const listAllArticles = () => {
+    return articles.length === 0 ? (
       <p>There are no articles do display</p>
     ) : (
-      this.state.articles.map((article) => (
+      articles.map((article) => (
         <ArticleCard
-          handleArticleOpen={this.handleArticleOpen}
+          handleArticleOpen={handleArticleOpen}
           key={article.id.id}
           article={article}
         />
@@ -97,38 +55,17 @@ class ListArticlesPage extends Component {
     );
   };
 
-  loadAllArticles = async () => {
+  const loadAllArticles = async () => {
     let response = await fetch('http://localhost:9090/api/feeds/articles', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
     });
     let data = await response.json();
-    this.setState({
-      articles: data,
-    });
+    setArticles(data);
   };
 
-  loadUser = async () => {
-    let username = localStorage.getItem('username');
-    if (!username) {
-      return [];
-    }
-    let response = await fetch(
-      `http://localhost:9091/api/subscriptions/authenticated/${username}`,
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      },
-    );
-    let data = await response.json();
-    this.setState({
-      user: data.subscription.isSubscibed,
-    });
-  };
-
-  loadAllPersonalizedArticles = async () => {
+  const loadAllPersonalizedArticles = async () => {
     let username = localStorage.getItem('username');
     let response = await fetch(
       `http://localhost:9090/api/feeds/user/${username}`,
@@ -139,10 +76,37 @@ class ListArticlesPage extends Component {
       },
     );
     let data = await response.json();
-    this.setState({
-      articles: data,
-    });
+    setArticles(data);
   };
-}
+
+  return (
+    <>
+      <Container>
+        <Container className="p-2">
+          {user.loggedIn && user.subscribed ? (
+            <Button onClick={handlePersonalizedSwitch}>
+              Switch to personalized
+            </Button>
+          ) : (
+            ''
+          )}
+        </Container>
+        <Row sm={1} md={2} lg={3} className="g-5">
+          {listAllArticles()}
+        </Row>
+        {url ? (
+          <EmbeddedHtmlModal
+            id={id}
+            url={url}
+            title={title}
+            handleClose={handleClose}
+          />
+        ) : (
+          ''
+        )}
+      </Container>
+    </>
+  );
+};
 
 export default ListArticlesPage;

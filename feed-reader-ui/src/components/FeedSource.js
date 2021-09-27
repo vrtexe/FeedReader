@@ -18,19 +18,27 @@ class FeedSource extends Component {
   render() {
     return (
       <>
-        <Row style={{height: '2em'}} className="mb-2">
+        <Row style={{ height: '2em' }} className="mb-2">
           <Col className="p-0 h-100" sm={1}>
             <Image
               className="w-100 h-100"
-              src={this.props.feedSource.logo ? this.props.feedSource.logo.imageUrl : ''}
-              alt={this.props.feedSource.logo ? this.props.feedSource.logo.imageAlt:''}
+              src={
+                this.props.feedSource.logo
+                  ? this.props.feedSource.logo.imageUrl
+                  : ''
+              }
+              alt={
+                this.props.feedSource.logo
+                  ? this.props.feedSource.logo.imageAlt
+                  : ''
+              }
               roundedCircle
             ></Image>
           </Col>
           <Col className="align-self-center justify-self-center">
             <div>{this.props.feedSource.link.url}</div>
           </Col>
-          <Col className="align-self-center justify-self-end" sm={1} >
+          <Col className="align-self-center justify-self-end" sm={1}>
             <div>{this.props.feedSource.subscribers}</div>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">
@@ -38,6 +46,7 @@ class FeedSource extends Component {
               this.state.username ? (
                 this.props.feedSource.subscribed ? (
                   <Button
+                    disabled={this.props.loading}
                     onClick={() =>
                       this.props.handleUnsubscribe(this.props.feedSource.id.id)
                     }
@@ -48,6 +57,7 @@ class FeedSource extends Component {
                   </Button>
                 ) : (
                   <Button
+                    disabled={this.props.loading}
                     onClick={() =>
                       this.props.handleSubscribe(this.props.feedSource.id.id)
                     }

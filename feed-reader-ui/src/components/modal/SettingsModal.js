@@ -141,7 +141,7 @@ export const SettingsModal = (props) => {
   const addFeedSource = async (url) => {
     setLoading(true);
     let newFeedSource = { url };
-    await fetch('http://localhost:9090/api/feeds', {
+    fetch('http://localhost:9090/api/feeds', {
       method: 'POST',
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -157,14 +157,12 @@ export const SettingsModal = (props) => {
       })
       .then((data) => {
         setFeedSources([...feedSources, data]);
-        setLoading(false);
-        // this.setState({
-        //   feedSources: [...this.state.feedSources, data],
-        //   loading: false,
-        // });
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 

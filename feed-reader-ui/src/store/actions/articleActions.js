@@ -1,0 +1,1 @@
+export const UPDATE_ARTICLES = 'UPDATE_ARTICLES';

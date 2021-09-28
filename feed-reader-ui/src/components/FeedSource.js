@@ -1,21 +1,9 @@
-import { Component } from 'react';
 import { Col, Row, Button, Image } from 'react-bootstrap';
+import { shallowEqual, useSelector } from 'react-redux';
 
-class FeedSource extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: null,
-    };
-  }
+const FeedSource = (props) =>  {
+  const user = useSelector((state) => state.currentUser, shallowEqual);
 
-  componentDidMount() {
-    this.setState({
-      username: localStorage.getItem('username'),
-    });
-  }
-
-  render() {
     return (
       <>
         <Row style={{ height: '2em' }} className="mb-2">
@@ -23,32 +11,32 @@ class FeedSource extends Component {
             <Image
               className="w-100 h-100"
               src={
-                this.props.feedSource.logo
-                  ? this.props.feedSource.logo.imageUrl
+                props.feedSource.logo
+                  ? props.feedSource.logo.imageUrl
                   : ''
               }
               alt={
-                this.props.feedSource.logo
-                  ? this.props.feedSource.logo.imageAlt
+                props.feedSource.logo
+                  ? props.feedSource.logo.imageAlt
                   : ''
               }
               roundedCircle
             ></Image>
           </Col>
           <Col className="align-self-center justify-self-center">
-            <div>{this.props.feedSource.link.url}</div>
+            <div>{props.feedSource.link.url}</div>
           </Col>
           <Col className="align-self-center justify-self-end" sm={1}>
-            <div>{this.props.feedSource.subscribers}</div>
+            <div>{props.feedSource.subscribers}</div>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">
-            {this.props.subbed ? (
-              this.state.username ? (
-                this.props.feedSource.subscribed ? (
+            {user.subscribed ? (
+              user.username ? (
+                props.feedSource.subscribed ? (
                   <Button
-                    disabled={this.props.loading}
+                    disabled={props.loading}
                     onClick={() =>
-                      this.props.handleUnsubscribe(this.props.feedSource.id.id)
+                      props.handleUnsubscribe(props.feedSource.id.id)
                     }
                     className="mx-2"
                     variant="primary"
@@ -57,9 +45,9 @@ class FeedSource extends Component {
                   </Button>
                 ) : (
                   <Button
-                    disabled={this.props.loading}
+                    disabled={props.loading}
                     onClick={() =>
-                      this.props.handleSubscribe(this.props.feedSource.id.id)
+                      props.handleSubscribe(props.feedSource.id.id)
                     }
                     className="mx-2"
                     variant="primary"
@@ -74,9 +62,9 @@ class FeedSource extends Component {
               ''
             )}
             <Button
-              disabled={this.props.loading}
+              disabled={props.loading}
               onClick={() =>
-                this.props.removeFeedSource(this.props.feedSource.id.id)
+                props.removeFeedSource(props.feedSource.id.id)
               }
               variant="danger"
             >
@@ -86,7 +74,6 @@ class FeedSource extends Component {
         </Row>
       </>
     );
-  }
 }
 
 export default FeedSource;

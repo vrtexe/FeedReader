@@ -22,6 +22,8 @@ import mk.finki.emt.feedreader.feeds.domain.valueObjects.LinkContentType;
 import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
 import org.jsoup.nodes.Document;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 //Sekoj metod soodvetstvuva na kontrolerot
@@ -181,5 +183,24 @@ public class FeedServiceImpl implements FeedService {
       .orElseThrow(ArticleNotFoundException::new)
       .getLink()
       .getHtmlContent();
+  }
+
+  @Override
+  public Slice<Article> getAllArticlesPageable(Pageable pageable) {
+    return repository.findAllArticlesPageable(pageable);
+  }
+
+  @Override
+  public Slice<Article> getAllArticlesByListOfIdsPageable(
+    Collection<FeedSubscription> subscriptions,
+    Pageable pageable
+  ) {
+    return repository.findAllArticlesByListPageable(
+      subscriptions
+        .stream()
+        .map(sub -> sub.getFeedSourceId())
+        .collect(Collectors.toSet()),
+      pageable
+    );
   }
 }

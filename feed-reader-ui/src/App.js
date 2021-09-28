@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import FeedSourcePage from './components/pages/FeedSourcesPage';
 import ListArticlesPage from './components/pages/ListArticlesPage';
 import UserProfilePage from './components/pages/ProfilePage';

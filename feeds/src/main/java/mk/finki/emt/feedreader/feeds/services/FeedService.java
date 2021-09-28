@@ -7,6 +7,8 @@ import mk.finki.emt.feedreader.feeds.domain.models.FeedSource;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.FeedSubscription;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
 import org.jsoup.nodes.Document;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 public interface FeedService {
   FeedSource addSource(FeedSourceForm form) throws Exception;
@@ -34,4 +36,11 @@ public interface FeedService {
   Collection<FeedSource> getAll();
 
   Document getArticlePage(String articleId);
+
+  Slice<Article> getAllArticlesPageable(Pageable pageable);
+
+  Slice<Article> getAllArticlesByListOfIdsPageable(
+    Collection<FeedSubscription> subscriptions,
+    Pageable pageable
+  );
 }

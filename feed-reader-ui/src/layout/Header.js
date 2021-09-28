@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
+import Loader from 'react-loader-spinner';
 import { useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSyncAlt, faCog } from '@fortawesome/free-solid-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 import { SettingsModal } from '../components/modal/SettingsModal';
 import UserLoginRegisterModal from '../components/modal/UserLoginRegisterModal';
@@ -9,19 +12,32 @@ import allActions from '../store/actions';
 const Header = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
   const user = useSelector((state) => state.currentUser);
+  const updateButton = useSelector((state) => state.articleUpdate);
 
   const dispatch = useDispatch();
 
+  const stopLoading = () => {
+    setLoading(false);
+  };
+
   const handleUpdateUsername = async (username) => {
     let subscribed = await loadUser(username);
-    console.log(subscribed);
     dispatch(allActions.userActions.setUsername(username, subscribed));
   };
 
+  const handleDispatchUpdate = () => {
+    const event = new CustomEvent('updateArticles', {
+      detail: { stopLoading },
+    });
+    document.dispatchEvent(event);
+    setLoading(true);
+    console.log(loading);
+  };
+
   const handleLogOut = () => {
-    console.log(dispatch(allActions.userActions.logOut()));
-    console.log(user);
+    dispatch(allActions.userActions.logOut());
   };
 
   const handleShowSettings = () => {
@@ -67,8 +83,19 @@ const Header = () => {
                 <Nav.Link>Feed Sources</Nav.Link>
               </LinkContainer>
             </Nav>
-            <Nav className="justify-content-end">
-              <Nav.Link onClick={handleShowSettings}>Settings</Nav.Link>
+            <Nav className="h-100 justify-content-end">
+              {loading ? (
+                <Loader
+                  type="Puff"
+                  color="lightgray"
+                  height="45"
+                  width="45"
+                  visible="true"
+                />
+              ) : (
+                ''
+              )}
+
               {!user.loggedIn ? (
                 <Nav.Link onClick={handleShowLogin}>Login</Nav.Link>
               ) : (
@@ -81,6 +108,12 @@ const Header = () => {
                   </NavDropdown.Item>
                 </NavDropdown>
               )}
+              <Nav.Link hidden={!updateButton.toUpdate} onClick={handleDispatchUpdate}>
+                <FontAwesomeIcon icon={faSyncAlt} />
+              </Nav.Link>
+              <Nav.Link onClick={handleShowSettings}>
+                <FontAwesomeIcon icon={faCog} />
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

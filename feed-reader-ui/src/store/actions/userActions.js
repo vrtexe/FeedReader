@@ -14,8 +14,10 @@ const setSubscribed = (subscribed) => ({
   payload: { subscribed },
 });
 
-export default {
+const userActions = {
   setUsername,
   logOut,
   setSubscribed,
 };
+
+export default userActions;

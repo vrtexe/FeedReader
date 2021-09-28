@@ -110,15 +110,48 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
             if (reader.isStartElement()) {
               switch (reader.getLocalName()) {
                 case "title" -> {
-                  title = reader.getElementText();
+                  if (title.isBlank()) {
+                    title = reader.getElementText();
+                  }
                 }
                 case "link" -> {
-                  link = new Link(reader.getElementText(), LinkContentType.HTML);
+                  if (link == null) {
+                    link = new Link(reader.getElementText(), LinkContentType.HTML);
+                  }
                 }
                 case "description" -> {
-                  summary = reader.getElementText();
-                  summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
-
+                  String html = reader.getElementText();
+                  Document doc = Jsoup.parse(html);
+                  Elements elements = doc.getElementsByTag("img");
+                  if (!elements.isEmpty()) {
+                    image = new Image(elements.first().attr("src"), elements.first().attr("alt"));
+                  }
+                  elements = doc.getElementsByTag("p");
+                  if (!elements.isEmpty() && summary.isEmpty()) {
+                    summary = elements.first().text();
+                    summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                  }
+                  if (summary.isEmpty()) {
+                    summary = html;
+                    summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                  }
+                }
+                case "encoded" -> {
+                  String html = reader.getElementText();
+                  Document doc = Jsoup.parse(html);
+                  Elements elements = doc.getElementsByTag("img");
+                  if (!elements.isEmpty()) {
+                    image = new Image(elements.first().attr("src"), elements.first().attr("alt"));
+                  }
+                  elements = doc.getElementsByTag("p");
+                  if (!elements.isEmpty() && summary.isEmpty()) {
+                    summary = elements.first().text();
+                    summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                  }
+                  if (summary.isEmpty()) {
+                    summary = html;
+                    summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                  }
                 }
                 case "category" -> {
                   category = reader.getElementText();
@@ -137,6 +170,34 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
                 }
                 case "thumbnail" -> {
                   image = new Image(reader.getAttributeValue(null, "url"), "Displayed on Article card");
+                }
+                case "thumbnails" -> {
+                  if (image == null) {
+                    image = new Image(reader.getAttributeValue(null, "url"), "Displayed on Article card");
+                  }
+                }
+                case "image" -> {
+                  if (image == null) {
+                    String imageAlt = null;
+                    String imageSrc = null;
+                    while (reader.hasNext()) {
+                      reader.next();
+                      if (reader.isEndElement() && reader.getLocalName().equals("image")) {
+                        break;
+                      }
+                      if (reader.isStartElement()) {
+                        switch (reader.getLocalName()) {
+                          case "title" -> {
+                            imageAlt = reader.getElementText();
+                          }
+                          case "url" -> {
+                            imageSrc = reader.getElementText();
+                          }
+                        }
+                      }
+                    }
+                    image = new Image(imageSrc, imageAlt);
+                  }
                 }
               }
             }

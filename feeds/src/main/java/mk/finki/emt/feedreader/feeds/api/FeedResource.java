@@ -9,6 +9,9 @@ import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.feeds.services.forms.FeedSourceForm;
 import mk.finki.emt.feedreader.feeds.services.types.HtmlDocument;
 import mk.finki.emt.feedreader.sharedkernel.domain.types.ActionCompleted;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -90,6 +94,42 @@ public class FeedResource {
   public ResponseEntity<Collection<Article>> getAllArticles() {
     try {
       return new ResponseEntity<>(service.getAllArticles(), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping(path = "/pageable", params = { "page", "size" })
+  public ResponseEntity<Slice<Article>> getAllArticlesPageable(
+    @RequestParam Integer page,
+    @RequestParam Integer size
+  ) {
+    try {
+      Pageable pageable = PageRequest.of(page, size);
+      return new ResponseEntity<>(
+        service.getAllArticlesPageable(pageable),
+        HttpStatus.PARTIAL_CONTENT
+      );
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping(path = "/user/{username}/pageable", params = { "page", "size" })
+  public ResponseEntity<Slice<Article>> getAllArticlesByUserPageable(
+    @PathVariable String username,
+    @RequestParam Integer page,
+    @RequestParam Integer size
+  ) {
+    try {
+      Pageable pageable = PageRequest.of(page, size);
+      return new ResponseEntity<>(
+        service.getAllArticlesByListOfIdsPageable(
+          userClient.findSubscriptionsByUsername(username),
+          pageable
+        ),
+        HttpStatus.PARTIAL_CONTENT
+      );
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }

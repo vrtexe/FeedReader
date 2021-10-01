@@ -1,10 +1,14 @@
 package mk.finki.emt.feedreader.feeds.domain.models;
 
+import java.io.Console;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -68,6 +72,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     XMLStreamReader reader = link.openXMLStream();
     try {
       FeedType feedType = null;
+      System.out.println(reader);
       if (reader.hasNext()) {
         reader.next();
         if (reader.isStartElement()) {
@@ -130,10 +135,18 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
                   if (!elements.isEmpty() && summary.isEmpty()) {
                     summary = elements.first().text();
                     summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                    if (summary.length() > 500) {
+                      summary = Arrays.asList(summary.split("\\.")).stream().limit(2)
+                          .map(sentence -> sentence.concat(".")).reduce("", String::concat);
+                    }
                   }
                   if (summary.isEmpty()) {
                     summary = html;
                     summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                    if (summary.length() > 500) {
+                      summary = Arrays.asList(summary.split("\\.")).stream().limit(2)
+                          .map(sentence -> sentence.concat(".")).reduce("", String::concat);
+                    }
                   }
                 }
                 case "encoded" -> {
@@ -151,6 +164,10 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
                   if (summary.isEmpty()) {
                     summary = html;
                     summary = summary.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+                  }
+                  if (summary.length() > 500) {
+                    summary = Arrays.asList(summary.split("\\.")).stream().limit(2)
+                        .map(sentence -> sentence.concat(".")).reduce("", String::concat);
                   }
                 }
                 case "category" -> {

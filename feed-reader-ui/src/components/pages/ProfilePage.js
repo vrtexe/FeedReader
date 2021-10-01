@@ -3,6 +3,8 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import allActions from '../../store/actions';
 
+
+//TODO: Rework the profile page
 const UserProfilePage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const user = useSelector((state) => state.currentUser, shallowEqual);

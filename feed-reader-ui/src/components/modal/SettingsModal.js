@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import FeedSource from '../FeedSource';
 import {
   Col,
@@ -10,6 +11,7 @@ import {
   Row,
   FloatingLabel,
 } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const SettingsModal = (props) => {
   const [feedSources, setFeedSources] = useState([]);
@@ -179,10 +181,6 @@ export const SettingsModal = (props) => {
         } else {
           setFeedSources(feedSources.filter((v) => v.id.id !== id));
           setLoading(false);
-          // this.setState({
-          //   loading: false,
-          //   feedSources: this.state.feedSources.filter((v) => v.id.id !== id),
-          // });
         }
       })
       .catch((error) => {
@@ -216,20 +214,20 @@ export const SettingsModal = (props) => {
         show={props.show}
         onHide={props.handleClose}
       >
-        <Container>
+        <Container className="h-100">
           <Modal.Header closeButton>
             <Modal.Title>Settings</Modal.Title>
           </Modal.Header>
-          <Modal.Body className="h-100 overflow-auto">
-            <Container style={{ height: '50vh' }} className="overflow-auto">
+          <Modal.Body className="h-75 overflow-auto mb-2">
+            <Container className="overflow-auto h-100">
               {listSources()}
             </Container>
           </Modal.Body>
           <Modal.Footer>
             <Container>
               <Form onSubmit={handleSubmit} className="w-100">
-                <Form.Group className="mb-3 h-100" controlId="formBasicEmail">
-                  <Row>
+                <Form.Group className="mt-3 h-100" controlId="formBasicEmail">
+                  <Row className="mt-2">
                     <Col className="align-items-center">
                       <FloatingLabel
                         controlId="floatingInput"
@@ -252,7 +250,7 @@ export const SettingsModal = (props) => {
                         type="submit"
                         disabled={loading}
                       >
-                        Add
+                        <FontAwesomeIcon icon={faPlusCircle} />
                       </Button>
                     </Col>
                   </Row>

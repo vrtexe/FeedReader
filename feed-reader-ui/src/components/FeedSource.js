@@ -34,33 +34,37 @@ const FeedSource = (props) => {
         </Col>
         <Col className="d-flex justify-content-end align-items-center">
           {user.loggedIn && user.subscribed ? (
-            <AlternatingButton
-                    alt={!props.feedSource.subscribed}
-                    handleNormalAction={() => props.handleSubscribe(props.feedSource.id.id)
-                      }
-                    handleAltAction={() => props.handleUnsubscribe(props.feedSource.id.id)}
-                    normalButtonText={'Subscribe'}
-                    altButtonText={'Unsubscribe'}
-                    altVariant={'danger'}
-                    disabled={props.loading}
-                    classNormal={'mx-2'}
-                    classAlt={'mx-2'}
-                  />
+            <>
+              <AlternatingButton
+                alt={!props.feedSource.subscribed}
+                handleNormalAction={() =>
+                  props.handleSubscribe(props.feedSource.id.id)
+                }
+                handleAltAction={() =>
+                  props.handleUnsubscribe(props.feedSource.id.id)
+                }
+                normalButtonText={'Subscribe'}
+                altButtonText={'Unsubscribe'}
+                altVariant={'danger'}
+                disabled={props.loading}
+                classNormal={'mx-2'}
+                classAlt={'mx-2'}
+              />
+              <Button
+                disabled={props.loading}
+                onClick={() => props.removeFeedSource(props.feedSource.id.id)}
+                variant="danger"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </>
           ) : (
             ''
           )}
-          <Button
-            disabled={props.loading}
-            onClick={() => props.removeFeedSource(props.feedSource.id.id)}
-            variant="danger"
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </Button>
         </Col>
       </Row>
     </>
   );
 };
-//TODO: remove the delete button when not logged in
 
 export default FeedSource;

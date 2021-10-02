@@ -5,7 +5,9 @@ Multi-modular Domain Driven Design application using maven and spring boot with 
 ## Starting the project
 ---    
     git clone https://github.com/DragonsLacky/FeedReader.git 
-    wget -qO- https://dlcdn.apache.org/kafka/3.0.0/kafka_2.13-3.0.0.tgz | tar -xvz cd kafka_2.13-3.0.0/ bin/zookeeper-server-start.sh config/zookeeper.properties 
+    wget -qO- https://dlcdn.apache.org/kafka/3.0.0/kafka_2.13-3.0.0.tgz | tar -xvz 
+    cd kafka_2.13-3.0.0/ 
+    bin/zookeeper-server-start.sh config/zookeeper.properties 
     bin/kafka-server-start.sh config/server.properties
     
 ## Example feed Sources

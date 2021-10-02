@@ -173,6 +173,18 @@ public class FeedServiceImpl implements FeedService {
   }
 
   @Override
+  public void removeSubscriberFromAllFeed(Collection<String> ids) {
+    Set<FeedSource> fs =  repository
+    .findAllById(ids.stream().map(id -> new FeedSourceId(id)).collect(Collectors.toSet()))
+    .stream().map(source -> source.removeSubscriber()).collect(Collectors.toSet());
+    System.out.println(repository.findAll());
+    repository.saveAllAndFlush(
+    fs 
+    );
+    System.out.println(repository.findAll());
+  }
+
+  @Override
   public Document getArticlePage(String articleId) {
     return repository
       .findAll()

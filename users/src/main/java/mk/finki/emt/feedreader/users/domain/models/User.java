@@ -84,6 +84,7 @@ public class User extends AbstractEntity<UserId> {
 
   public User unsubscribe() {
     this.subscription = this.subscription.unsubscribe();
+    this.subscriptions.removeAll(this.subscriptions);
     return this;
   }
 

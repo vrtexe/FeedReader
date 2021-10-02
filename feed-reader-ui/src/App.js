@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { FeedSourceProfile } from './components/pages/FeedSourceProfile';
 import FeedSourcePage from './components/pages/FeedSourcesPage';
 import ListArticlesPage from './components/pages/ListArticlesPage';
 import UserProfilePage from './components/pages/ProfilePage';
@@ -10,6 +11,9 @@ export default function App() {
     <Router>
       <Header />
       <Switch>
+        <Route exact path="/sources/:id">
+          <FeedSourceProfile />
+        </Route>
         <Route exact path="/sources">
           <FeedSourcePage />
         </Route>

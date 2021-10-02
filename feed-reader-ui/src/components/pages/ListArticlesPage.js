@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
+import { createUseStyles } from 'react-jss';
 import Loader from 'react-loader-spinner';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import allActions from '../../store/actions';
 import ArticleCard from '../ArticleCard';
 import EmbeddedHtmlModal from '../modal/EmbeddedHtmlModal';
 
-const ListArticlesPage = () => {
+const useStyles = createUseStyles({
+  pageContainer: {
+    height: (props) => (props.overflow ? 'auto' : '90vh'),
+    overflowY: (props) => (props.overflow ? props.overflow : 'auto'),
+    overflowX: 'hidden',
+    width: '100%',
+  },
+});
+
+const ListArticlesPage = (props) => {
   const [articles, setArticles] = useState([]);
   const [id, setId] = useState(null);
   const [url, setUrl] = useState(null);
@@ -17,13 +27,20 @@ const ListArticlesPage = () => {
   const [personalized, setPersonalized] = useState(false);
   const user = useSelector((state) => state.currentUser, shallowEqual);
   const dispatch = useDispatch();
-
+  const classes = useStyles({ overflow: props.overflow });
   useEffect(() => {
-    if (page === 0 && !loading) {
+    if (page === 0 && !loading && props.filter !== 'feedSource') {
       setLoading(true);
       reloadArticlesPageable();
     }
   });
+
+  useEffect(() => {
+    if (props.filter === 'feedSource') {
+      setLoading(true);
+      reloadArticlesPageable();
+    }
+  }, []);
 
   useEffect(() => {
     document.addEventListener('updateArticles', async (e) => {
@@ -58,31 +75,30 @@ const ListArticlesPage = () => {
   };
 
   const handleWindowScroll = (e) => {
-    if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
+    if (
+      e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight &&
+      props.filter !== 'feedSource'
+    ) {
       setLoading(true);
       reloadArticlesPageable();
     }
   };
 
-  const reloadArticles = async () => {
-    if (personalized) {
-      await loadAllPersonalizedArticles();
-    } else {
-      await loadAllArticles();
-    }
-  };
-
   const reloadArticlesPageable = async () => {
-    if (personalized) {
-      return loadAllArticlesPersonalizedPageable();
+    if (props.filter !== 'feedSource') {
+      if (personalized) {
+        return loadAllArticlesPersonalizedPageable();
+      } else {
+        return loadAllArticlesPageable();
+      }
     } else {
-      return loadAllArticlesPageable();
+      return loadAllArticlesForSource();
     }
   };
 
   const listAllArticles = () => {
     return articles.length === 0 ? (
-      <p>There are no articles do display</p>
+      <p>There are no articles to display</p>
     ) : (
       articles.map((article) => (
         <ArticleCard
@@ -94,19 +110,9 @@ const ListArticlesPage = () => {
     );
   };
 
-  const loadAllArticles = async () => {
-    let response = await fetch('http://localhost:9090/api/feeds/articles', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-    let data = await response.json();
-    setArticles(data);
-  };
-
-  const loadAllPersonalizedArticles = async () => {
+  const loadAllArticlesForSource = async () => {
     let response = await fetch(
-      `http://localhost:9090/api/feeds/user/${user.username}`,
+      `http://localhost:9090/api/feeds/articles/${props.id}`,
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -115,6 +121,7 @@ const ListArticlesPage = () => {
     );
     let data = await response.json();
     setArticles(data);
+    setLoading(false);
   };
 
   const updateAllArticles = (stopLoading) => {
@@ -197,17 +204,12 @@ const ListArticlesPage = () => {
   return (
     <>
       <div
-        onScroll={handleWindowScroll}
-        style={{
-          height: '90vh',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          width: '100%',
-        }}
+        onScroll={props.filter !== 'feedSource' ? handleWindowScroll : null}
+        className={classes.pageContainer}
       >
         <Container>
           <Container className="p-2">
-            {user.loggedIn && user.subscribed ? (
+            {!props.filter && user.loggedIn && user.subscribed ? (
               <>
                 <Button
                   disabled={!personalized}

@@ -3,7 +3,7 @@ import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import Loader from 'react-loader-spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faSyncAlt, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 import { SettingsModal } from '../components/modal/SettingsModal';
 import UserLoginRegisterModal from '../components/modal/UserLoginRegisterModal';
@@ -95,11 +95,10 @@ const Header = () => {
               ) : (
                 ''
               )}
-
               {!user.loggedIn ? (
                 <Nav.Link onClick={handleShowLogin}>Login</Nav.Link>
               ) : (
-                <NavDropdown title="Account" id="basic-nav-dropdown">
+                <NavDropdown title={<FontAwesomeIcon icon={faUser} />} id="basic-nav-dropdown">
                   <LinkContainer to="/profile">
                     <NavDropdown.Item>Profile</NavDropdown.Item>
                   </LinkContainer>

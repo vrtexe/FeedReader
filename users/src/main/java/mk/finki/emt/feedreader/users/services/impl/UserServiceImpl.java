@@ -3,12 +3,14 @@ package mk.finki.emt.feedreader.users.services.impl;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import lombok.AllArgsConstructor;
 import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserSubscribed;
+import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserUnsubscribeFromAll;
 import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserUnsubscribed;
 import mk.finki.emt.feedreader.sharedkernel.infr.DomainEventPublisher;
 import mk.finki.emt.feedreader.users.domain.exceptions.EmailAlreadyExistsException;
@@ -108,12 +110,16 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void unsubscribe(String username) {
-    repository.saveAndFlush(
-      repository
-        .findFirstByAuthenticationUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException(username))
-        .unsubscribe()
-    );
+    User user = repository
+      .findFirstByAuthenticationUsername(username)
+      .orElseThrow(() -> new UsernameNotFoundException(username));
+    Set<String> fsIds = user
+      .getSubscriptions()
+      .stream()
+      .map(sub -> sub.getFeedSourceId().getId())
+      .collect(Collectors.toSet());
+    eventPublisher.publish(new UserUnsubscribeFromAll(fsIds));
+    repository.saveAndFlush(user.unsubscribe());
   }
 
   @Override

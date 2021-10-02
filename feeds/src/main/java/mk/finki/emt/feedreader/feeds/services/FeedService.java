@@ -43,4 +43,5 @@ public interface FeedService {
     Collection<FeedSubscription> subscriptions,
     Pageable pageable
   );
+  void removeSubscriberFromAllFeed(Collection<String> ids);
 }

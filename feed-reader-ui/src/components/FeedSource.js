@@ -2,6 +2,7 @@ import { Col, Row, Button, Image } from 'react-bootstrap';
 import { shallowEqual, useSelector } from 'react-redux';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { AlternatingButton } from './interface/alternatingButton';
 
 const FeedSource = (props) => {
   const user = useSelector((state) => state.currentUser, shallowEqual);
@@ -32,32 +33,19 @@ const FeedSource = (props) => {
           <div>{props.feedSource.subscribers}</div>
         </Col>
         <Col className="d-flex justify-content-end align-items-center">
-          {user.subscribed ? (
-            user.username ? (
-              props.feedSource.subscribed ? (
-                <Button
-                  disabled={props.loading}
-                  onClick={() =>
-                    props.handleUnsubscribe(props.feedSource.id.id)
-                  }
-                  className="mx-2"
-                  variant="primary"
-                >
-                  Unsubscribe
-                </Button>
-              ) : (
-                <Button
-                  disabled={props.loading}
-                  onClick={() => props.handleSubscribe(props.feedSource.id.id)}
-                  className="mx-2"
-                  variant="primary"
-                >
-                  Subscribe
-                </Button>
-              )
-            ) : (
-              ''
-            )
+          {user.loggedIn && user.subscribed ? (
+            <AlternatingButton
+                    alt={!props.feedSource.subscribed}
+                    handleNormalAction={() => props.handleSubscribe(props.feedSource.id.id)
+                      }
+                    handleAltAction={() => props.handleUnsubscribe(props.feedSource.id.id)}
+                    normalButtonText={'Subscribe'}
+                    altButtonText={'Unsubscribe'}
+                    altVariant={'danger'}
+                    disabled={props.loading}
+                    classNormal={'mx-2'}
+                    classAlt={'mx-2'}
+                  />
           ) : (
             ''
           )}

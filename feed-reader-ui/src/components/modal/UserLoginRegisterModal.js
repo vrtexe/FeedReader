@@ -1,13 +1,7 @@
 import { Component } from 'react';
-import {
-  Modal,
-  Button,
-  Container,
-  Form,
-  NavLink,
-  Col,
-  Row,
-} from 'react-bootstrap';
+
+import { LoginModal } from '../interface/authentication/LoginModal';
+import { RegistrationModal } from '../interface/authentication/registrationModal';
 
 class UserLoginModal extends Component {
   constructor(props) {
@@ -130,153 +124,39 @@ class UserLoginModal extends Component {
     return (
       <>
         {this.state.loginMode ? (
-          <Modal
+          <LoginModal
             show={this.props.show}
-            onHide={this.props.handleClose}
-            size="md"
-            aria-labelledby="contained-modal-title-vcenter"
-            backdrop="static"
-            centered
-          >
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-vcenter">
-                Login Form
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Container>
-                <Form onSubmit={this.handleLoginSubmit}>
-                  <Form.Group className="mb-3" controlId="formBasicEmail">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                      onChange={this.handleUsernameInput}
-                      value={this.state.username}
-                      type="text"
-                      placeholder="Enter username"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      onChange={this.handlePasswordInput}
-                      value={this.state.password}
-                      type="password"
-                      placeholder="Password"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                    <Form.Check type="checkbox" label="Remember login" />
-                  </Form.Group>
-                  <Row>
-                    <Col className="d-flex justify-content-center">
-                      <Button variant="primary" className="w-25" type="submit">
-                        Log in
-                      </Button>
-                    </Col>
-                  </Row>
-                </Form>
-              </Container>
-            </Modal.Body>
-            <Modal.Footer className="d-flex justify-content-center">
-              <NavLink onClick={this.handleFormSwitch}>
-                Don't have an account yet? register now
-              </NavLink>
-            </Modal.Footer>
-          </Modal>
+            closeHandler={this.props.handleClose}
+            formHeader={'Login form'}
+            usernameFieldName={'Username'}
+            usernameFieldType={'text'}
+            usernameInputHandler={this.handleUsernameInput}
+            usernameBinding={this.state.username}
+            passwordInputHandler={this.handlePasswordInput}
+            passwordBinding={this.state.password}
+            buttonAction={this.handleFormSwitch}
+            formSubmitHandler={this.handleLoginSubmit}
+            submitButtonText={'Log in'}
+          />
         ) : (
-          <Modal
+          <RegistrationModal
             show={this.props.show}
-            onHide={this.props.handleClose}
-            size="md"
-            aria-labelledby="contained-modal-title-vcenter"
-            backdrop="static"
-            centered
-          >
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-vcenter">
-                Login Form
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Container>
-                <Form onSubmit={this.handleRegisterSubmit}>
-                  <Row>
-                    <Col>
-                      <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>First Name</Form.Label>
-                        <Form.Control
-                          onChange={this.handleFirstNameInput}
-                          value={this.state.name}
-                          type="text"
-                          placeholder="Enter first name"
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col>
-                      <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                          onChange={this.handleLastNameInput}
-                          value={this.state.lastName}
-                          type="text"
-                          placeholder="Enter last name"
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Form.Group className="mb-3" controlId="formBasicEmail">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                      onChange={this.handleUsernameInput}
-                      value={this.state.username}
-                      type="text"
-                      placeholder="Enter username"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      onChange={this.handlePasswordInput}
-                      value={this.state.password}
-                      type="password"
-                      placeholder="Password"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      placeholder="Confirm password"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      onChange={this.handleEmailInput}
-                      value={this.state.email}
-                      type="email"
-                      placeholder="user@example.com"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                    <Form.Check type="checkbox" label="Agree to terms" />
-                  </Form.Group>
-                  <Row>
-                    <Col className="d-flex justify-content-center">
-                      <Button variant="primary" className="w-25" type="submit">
-                        Register
-                      </Button>
-                    </Col>
-                  </Row>
-                </Form>
-              </Container>
-            </Modal.Body>
-            <Modal.Footer className="d-flex justify-content-center">
-              <NavLink onClick={this.handleFormSwitch}>
-                Already have an account? login here
-              </NavLink>
-            </Modal.Footer>
-          </Modal>
+            closeHandler={this.props.handleClose}
+            formHeader={'Registration form'}
+            nameInputHandler={this.handleFirstNameInput}
+            nameBinding={this.state.name}
+            lastNameInputHandler={this.handleLastNameInput}
+            lastNameBinding={this.state.lastName}
+            emailInputHandler={this.handleEmailInput}
+            emailBinding={this.state.email}
+            usernameInputHandler={this.handleUsernameInput}
+            usernameBinding={this.state.username}
+            passwordInputHandler={this.handlePasswordInput}
+            passwordBinding={this.state.password}
+            buttonAction={this.handleFormSwitch}
+            formSubmitHandler={this.handleRegisterSubmit}
+            submitButtonText={'Register'}
+          />
         )}
       </>
     );

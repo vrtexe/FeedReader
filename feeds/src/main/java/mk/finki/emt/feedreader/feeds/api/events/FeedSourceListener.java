@@ -5,6 +5,8 @@ import mk.finki.emt.feedreader.feeds.services.FeedService;
 import mk.finki.emt.feedreader.sharedkernel.domain.config.TopicHolder;
 import mk.finki.emt.feedreader.sharedkernel.domain.events.DomainEvent;
 import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserSubscribed;
+import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserUnsubscribeFromAll;
+import mk.finki.emt.feedreader.sharedkernel.domain.events.subscriptions.UserUnsubscribed;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -38,11 +40,27 @@ public class FeedSourceListener {
   )
   public void UserUnsubscribedListener(@Payload(required = false) String jsonMessage) {
     try {
-      UserSubscribed event = DomainEvent.fromJson(
+      UserUnsubscribed event = DomainEvent.fromJson(
         jsonMessage,
-        UserSubscribed.class
+        UserUnsubscribed.class
       );
       service.removeSubscriberFromFeed(event.getFeedSourceId());
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+  }
+
+  @KafkaListener(
+    topics = TopicHolder.TOPIC_USER_UNSUBSCRIBED_FROM_SERVICE,
+    groupId = "feedSubscriptionGroup"
+  )
+  public void UserUnsubscribedFromServiceListener(@Payload(required = false) String jsonMessage) {
+    try {
+      UserUnsubscribeFromAll event = DomainEvent.fromJson(
+        jsonMessage,
+        UserUnsubscribeFromAll.class
+      );
+      service.removeSubscriberFromAllFeed(event.getFeedSourceIds());
     } catch (Exception e) {
       System.err.println(e.getMessage());
     }

@@ -29,25 +29,43 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.http.MediaType;
 
-//Isto kako vo feed source vo linkot se proveruva dali e validen
+/**
+ * The link class contains the url of the feed source or the article
+ * and the logic concerning the interaction with the url
+ */
 @Getter
 @Embeddable
 public class Link implements ValueObject {
 
   private final String url;
 
+  /**
+   * A factory used to instantiate a new stream to read from.
+   * not included in the database
+   */
   @Transient
   @JsonIgnore
   private static XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
+  /**
+   * The factory used to build the document to read and parse from in memory,
+   * not used anymore (deprecated)
+   * ! It was too slow
+   */
   @Transient
   @JsonIgnore
   private static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
+  /**
+   * The input stream kept so that it can be easily closed when finished.
+   */
   @Transient
   @JsonIgnore
   private InputStream xmlInputStream;
 
+  /**
+   * The stream reader kept so it can be closed easier.
+   */
   @Transient
   @JsonIgnore
   private XMLStreamReader reader;
@@ -56,12 +74,25 @@ public class Link implements ValueObject {
     this.url = "";
   }
 
-  public Link(@NonNull String url, @NonNull LinkContentType contentType)
-    throws Exception {
+  /**
+   * Only instantiates the object, before it called a validation method that was too slow.
+   * @param url the url of the feed source or article kept here.
+   * @param contentType the content type provided (HTML or XML)
+   */
+  public Link(@NonNull String url, @NonNull LinkContentType contentType) {
     this.url = url;
     // this.url = this.validateLink(url, contentType);
   }
 
+  /**
+   * A method to validate the url if it opens, is accessible or if its the correct content type.
+   * ! Slowed down the process of adding feed sources or articles tremendously.
+   * @param url the url of feed source or article
+   * @param contentType the type of content (HTML or XML)
+   * @return the url of the feed source or article
+   * @throws IOException when there is a problem when opening the connection and reading from an empty stream
+   * @throws UrlNotValidException when arriving to the conclusion that the url is not valid
+   */
   public String validateLink(
     @NonNull String url,
     @NonNull LinkContentType contentType
@@ -116,27 +147,36 @@ public class Link implements ValueObject {
     return new Link(url, contentType);
   }
 
+  /**
+   * The method used to open a stream to the url and attach it to a reader.
+   * @return the reader of the input stream.
+   */
   public XMLStreamReader openXMLStream() {
-    InputStream xmlUrl = null;
-    XMLStreamReader reader = null;
     try {
-      xmlUrl = new URL(url).openStream();
-      reader = Link.xmlInputFactory.createXMLStreamReader(xmlUrl);
+      xmlInputStream = new URL(url).openStream();
+      reader = Link.xmlInputFactory.createXMLStreamReader(xmlInputStream);
     } catch (Exception e) {
       e.printStackTrace();
     }
     return reader;
   }
 
+  /**
+   * The method that closes reader and the input stream to free up resources.
+   */
   public void CloseXMLStream() {
     try {
-      xmlInputStream.close();
       reader.close();
+      xmlInputStream.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
+  /**
+   * This method gets the raw html file with the contained javascript and css, that can later be displayed in the browser.
+   * @return
+   */
   @JsonIgnore
   public Document getHtmlContent() {
     try {
@@ -147,6 +187,11 @@ public class Link implements ValueObject {
     return null;
   }
 
+  /**
+   * The alternate method that was used to parse the XML contents using the DOM parser.
+   * ! Tremendously slowed down the parsing.
+   * @return
+   */
   public org.w3c.dom.Document ReadXML() {
     try {
       DocumentBuilder builder = Link.factory.newDocumentBuilder();
@@ -159,6 +204,14 @@ public class Link implements ValueObject {
     return null;
   }
 
+  /**
+   * This method parsed the HTML contents of the page and returned the first image found to be shown as an article image on teh card
+   * ! No longer needed, most of the source provided an image if their own
+   * @return the url to the image
+   * @throws MalformedURLException  when the url is not valid
+   * @throws IOException when reading from the stream
+   * @throws ParserException when parsing an invalid text value
+   */
   public String ReadHtmlAndReturnFirstFoundImageUrl()
     throws MalformedURLException, IOException, ParserException {
     URLConnection connection = new URL(url).openConnection();
@@ -180,6 +233,11 @@ public class Link implements ValueObject {
     }
   }
 
+  /**
+   * This method parsed the HTML contents of the page and returned the first image found to be shown as an article image on teh card
+   * ! No longer needed, most of the source provided an image if their own
+   * @return the url of the image
+   */
   public String ReadHtmlAndReturnFirstFoundImageUrlJsoup() {
     try {
       Document doc = Jsoup.connect(url).get();

@@ -14,6 +14,10 @@ import mk.finki.emt.feedreader.users.domain.valueobjects.AuthInfo;
 import mk.finki.emt.feedreader.users.domain.valueobjects.FeedSourceId;
 import mk.finki.emt.feedreader.users.domain.valueobjects.Subscription;
 
+/**
+ * The Aggregate root of the module containing the data for a single user
+ * the subscriptions and some of the logic.
+ */
 @Getter
 @Entity
 @Table(name = "users")

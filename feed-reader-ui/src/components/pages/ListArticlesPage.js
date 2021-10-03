@@ -7,6 +7,11 @@ import allActions from '../../store/actions';
 import ArticleCard from '../ArticleCard';
 import EmbeddedHtmlModal from '../modal/EmbeddedHtmlModal';
 
+/**
+ * The articles page shows all articles available or if the user is subscribed
+ * to the service they can choose to change to a personalized view with only the subscribed
+ * to articles
+ */
 const useStyles = createUseStyles({
   pageContainer: {
     height: (props) => (props.overflow ? 'auto' : '90vh'),

@@ -6,6 +6,10 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * The form used hen adding a feed source,
+ * can be replaced with only a string
+ */
 @Data
 public class FeedSourceForm {
 

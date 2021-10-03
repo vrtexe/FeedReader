@@ -1,3 +1,6 @@
+/**
+ * Just two text fields that alternate based on a value provided by a parent
+ */
 export const AlternatingText = (props) => {
   return (
     <>

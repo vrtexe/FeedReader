@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * *The API exposed by the feeds module, it contains all the needed API methods required by the front end.
+ */
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/feeds")
@@ -33,7 +36,10 @@ public class FeedResource {
   private final FeedService service;
   private final UserFeedsClient userClient;
 
-  //So ovoj metod se dobivaat site FeedSources
+  /**
+   * This method just requests all the feed sources in the database.
+   * @return  The response containing the collection of feed sources in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping
   public ResponseEntity<Collection<FeedSource>> getAllFeedSources() {
     try {
@@ -43,7 +49,11 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dobivaat site artikli za odreden source
+  /**
+   * This method returns all the articles for a feed source specified by the id property
+   * @param id the id of a feed source
+   * @return The response containing a collection of articles for a feed source in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/articles/{id}")
   public ResponseEntity<Collection<Article>> getAllArticlesForFeedSource(
     @PathVariable String id
@@ -58,6 +68,11 @@ public class FeedResource {
     }
   }
 
+  /**
+   * This method returns the html for a specified page that is later used to preview it in the frontend
+   * @param articleId the id of the article to be shown
+   * @return The response containing the html as string mapped to an object wrapper in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/article/{articleId}")
   public ResponseEntity<HtmlDocument> getArticlePage(
     @PathVariable String articleId
@@ -72,7 +87,11 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dobivaat site artikli za soodveten korisnik
+  /**
+   * This method gets all the feeds the user has subscribed to, by calling the exposed API from the user module
+   * @param username the username of the authenticated in user
+   * @return The response containing the collection of articles filtered by user in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/user/{username}")
   public ResponseEntity<Collection<Article>> getAllArticlesForUser(
     @PathVariable String username
@@ -89,7 +108,10 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dobivaat site artikli
+  /**
+   * The method used to get all articles for every single feed source entered in the database.
+   * @return The response containing the collection of all articles present in the database in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/articles")
   public ResponseEntity<Collection<Article>> getAllArticles() {
     try {
@@ -99,6 +121,15 @@ public class FeedResource {
     }
   }
 
+  /**
+   * The method used to get all articles for every single feed source entered in the database, but partially page by page.
+   * @param page the page number to send to the front end
+   * @param size the size of the page
+   * @return The response containing the collection of articles
+   *  for a given page with the corresponding size and information about the page
+   *  in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   *
+   */
   @GetMapping(path = "/pageable", params = { "page", "size" })
   public ResponseEntity<Slice<Article>> getAllArticlesPageable(
     @RequestParam Integer page,
@@ -115,6 +146,16 @@ public class FeedResource {
     }
   }
 
+  /**
+   * The method used to get all articles for the feed sources the user is subscribed to, but partially page by page.
+   * @param username the username of the authenticated user
+   * @param page the page number to send to the front end
+   * @param size the size of the page
+   * @return The response containing the collection of articles
+   *  for a given page with the corresponding size and information about the page
+   *  in json format and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   *
+   */
   @GetMapping(path = "/user/{username}/pageable", params = { "page", "size" })
   public ResponseEntity<Slice<Article>> getAllArticlesByUserPageable(
     @PathVariable String username,
@@ -135,7 +176,12 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dodava nov source vo bazata na podatoci
+  /**
+   * The feed source url to add to the database, the feed source data is extracted from the url
+   * @param form The form only contains the url for the feed source
+   * @return The response containing the newly created feed source
+   * and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @PostMapping
   public ResponseEntity<FeedSource> addNewSource(
     @RequestBody FeedSourceForm form
@@ -147,7 +193,12 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se dobivaat site FeedSources
+  /**
+   * This method removes the feed source corresponding to the given id
+   * @param id the id of the feed source
+   * @return The response containing a boolean wrapper if the action is completed
+   * and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @DeleteMapping("/{id}")
   public ResponseEntity<ActionCompleted> removeExistingSource(
     @PathVariable String id
@@ -163,8 +214,12 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se pravi updejt na site artiklli vo vo programata
-  //Ova mozhi da potraj malku podolgo poradi chitanje na XML fajlot
+  /**
+   * This method updates the articles of all feed sources in the database by parsing link to the XML.
+   * ! This method can take a while if there are a lot of feed sources
+   * @return The response containing all the updated articles
+   * and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/articles/update")
   public ResponseEntity<Collection<Article>> updateArticlesForAllSources() {
     try {
@@ -174,7 +229,12 @@ public class FeedResource {
     }
   }
 
-  //So ovoj metod se pravi updejt na site artiklli vo odredeniot source
+  /**
+   * This method updates only one source by parsing the XML from the url
+   * @param id the id of the feed source
+   * @return The response containing only the updated articles
+   * and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/article/update/{id}")
   public ResponseEntity<Collection<Article>> updateArticlesForSource(
     @PathVariable String id
@@ -190,6 +250,12 @@ public class FeedResource {
   }
 
   //So ovoj metod se dobiva soodvetniot feedSource za ID
+  /**
+   * This method is used to get the information for a single feed source including all the articles
+   * @param id the id of the feed source
+   * @return The response containing only feed source requested with the id
+   * and the httpStatus(OK, PARTIAL_CONTENT, INTERNAL_SERVER_ERROR etc.)
+   */
   @GetMapping("/{id}")
   public ResponseEntity<FeedSource> getFeedSourceById(@PathVariable String id) {
     try {

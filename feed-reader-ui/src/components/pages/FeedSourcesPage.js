@@ -4,6 +4,11 @@ import { shallowEqual, useSelector } from 'react-redux';
 import FeedSourceAlt from '../FeedSourceAlt';
 import { createUseStyles } from 'react-jss';
 
+/**
+ * The feed source page shows a list of all the feed sources available,
+ * you can visit the page for a single feed source by clicking on it,
+ * you can also subscribe from here, but you need to first subscribe to the service
+ */
 const useStyles = createUseStyles({
   pageTitle: {
     fontSize: 'x-large',

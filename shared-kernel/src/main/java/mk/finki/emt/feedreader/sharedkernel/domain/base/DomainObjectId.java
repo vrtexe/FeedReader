@@ -10,6 +10,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.util.ProxyUtils;
 
+/**
+ * The base id class that all other Id objects extend from
+ */
 @MappedSuperclass
 @Embeddable
 @Getter

@@ -10,6 +10,10 @@ import lombok.NonNull;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.AbstractEntity;
 import mk.finki.emt.feedreader.users.domain.valueobjects.FeedSourceId;
 
+/**
+ * The class representing subscription entity that contains info about which
+ * sources the user is subscribed to. 
+ */
 @Getter
 @Entity
 @Table(name = "subscriptions")

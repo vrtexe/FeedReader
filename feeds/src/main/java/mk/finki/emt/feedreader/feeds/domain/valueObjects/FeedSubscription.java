@@ -7,7 +7,10 @@ import lombok.Getter;
 import mk.finki.emt.feedreader.feeds.domain.models.FeedSourceId;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.ValueObject;
 
-//Obde se chuva element od drugiot modul
+/**
+ * This class is used to represent objects that correspond to the class from the users module,
+ * the objects are received in a JSON format, and are later mapped to this class using jackson.
+ */
 @Getter
 public class FeedSubscription implements ValueObject {
 

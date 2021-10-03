@@ -13,6 +13,11 @@ import {
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+/**
+ * This component contains the logic behind deleting sources from the database,
+ * subscribing, adding source to the database through a url
+ */
+
 export const SettingsModal = (props) => {
   const [feedSources, setFeedSources] = useState([]);
   const [url, setUrl] = useState('');

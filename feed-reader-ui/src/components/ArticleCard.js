@@ -1,8 +1,11 @@
 import { Component } from 'react';
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 
+/**
+ * This component represents a single article card
+ */
 class ArticleCard extends Component {
-  constructor(props) {  
+  constructor(props) {
     super(props);
     this.state = {};
   }

@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
-// UserFeedClient klasata se koristi za da se dobija soodvetni podatoci od drugiot modul
+/**
+ * * The User Feed Client class is used by the feeds module to communicate with the exposed API in the user module by exchanging data, and do operations accordingly,
+ */
 @Service
 public class UserFeedsClient {
 
@@ -30,6 +31,13 @@ public class UserFeedsClient {
   private UriComponentsBuilder uri() {
     return UriComponentsBuilder.fromUriString(this.serverUrl);
   }
+
+  /**
+   * The method sends a request to the user module and requests the data for a specific user,
+   * the module then sends back all the subscriptions contained in the database of the module.
+   * @param username the username of the corresponding user
+   * @returns The collection containing all the subscriptions for a user
+   */
 
   public Collection<FeedSubscription> findSubscriptionsByUsername(String username) {
     try {

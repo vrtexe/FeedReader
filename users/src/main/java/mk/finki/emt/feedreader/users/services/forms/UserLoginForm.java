@@ -8,6 +8,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * This class is a form for authenticating the user,
+ * it consists of teh username and password provided by user input
+ */
 @Data
 public class UserLoginForm {
 

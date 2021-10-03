@@ -7,6 +7,10 @@ import mk.finki.emt.feedreader.users.services.forms.SubscriptionForm;
 import mk.finki.emt.feedreader.users.services.forms.UserRegistrationForm;
 import org.springframework.stereotype.Component;
 
+/**
+ * The class that initializes data for testing,
+ * ! not part of the application
+ */
 @Component
 @AllArgsConstructor
 public class DataInitializer {

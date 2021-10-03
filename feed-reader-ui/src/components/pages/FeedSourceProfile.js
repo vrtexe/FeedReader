@@ -7,6 +7,10 @@ import { AlternatingButton } from '../interface/alternatingButton';
 import { AlternatingText } from '../interface/alternatingText';
 import ListArticlesPage from './ListArticlesPage';
 
+/**
+ * The feed source page shows data related to a single feed source,
+ * it contains the logic of subscribing an unsubscribing from a feed source,
+ */
 const useStyles = createUseStyles({
   pageContainer: {
     width: '100%',
@@ -423,7 +427,3 @@ export const FeedSourceProfile = () => {
     </>
   );
 };
-
-// {feedSource.link.url}
-// {feedSource.description}
-// {feedSource.copyright}

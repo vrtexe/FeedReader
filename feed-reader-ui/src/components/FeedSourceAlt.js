@@ -4,6 +4,10 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { AlternatingButton } from './interface/alternatingButton';
 
+/**
+ * This component represents and alternate design for a single feed source row,
+ * with less options
+ */
 const useStyles = createUseStyles({
   buttonLink: {
     color: 'DodgerBlue',

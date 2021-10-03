@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import lombok.Getter;
 
+/**
+ * The base class representing a domain event that can be published
+ * it contains the topic and the instant it was sent as a string value that can later be parsed
+ */
 @Getter
 public class DomainEvent {
 

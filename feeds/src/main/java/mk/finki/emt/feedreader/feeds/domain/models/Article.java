@@ -4,16 +4,17 @@ import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Type;
-
 import lombok.Getter;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Author;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Image;
 import mk.finki.emt.feedreader.feeds.domain.valueObjects.Link;
 import mk.finki.emt.feedreader.sharedkernel.domain.base.AbstractEntity;
+import org.hibernate.annotations.Type;
 
-//Artiklot e chist entitet bez logika pozadi nego
+/**
+ * The article class defines the entity to be used for storing the article,
+ * no other functionality present here, because of the rules of the DDD approach
+ */
 @Getter
 @Entity
 @Table(name = "article")
@@ -23,8 +24,13 @@ public class Article extends AbstractEntity<ArticleId> {
 
   private Link link;
 
+  /**
+   * The Lob and type annotations are used to allow the value in the database to exceed the 255 max character limit
+   */
   @Lob
-  @Type(type = "org.hibernate.type.TextType")  private String summary;
+  @Type(type = "org.hibernate.type.TextType")
+  private String summary;
+
   private String category;
 
   private Instant published;

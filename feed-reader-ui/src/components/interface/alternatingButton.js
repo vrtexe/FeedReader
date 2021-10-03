@@ -1,5 +1,8 @@
 import { Button } from 'react-bootstrap';
 
+/**
+ * Just a button that alternates between two states
+ */
 export const AlternatingButton = (props) => {
   return (
     <>

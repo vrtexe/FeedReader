@@ -90,6 +90,9 @@ const useStyles = createUseStyles({
   },
 });
 
+/**
+ * The right card of the profile providing the general information
+ */
 const ProfileSideCard = (props) => {
   const classes = useStyles();
   return (

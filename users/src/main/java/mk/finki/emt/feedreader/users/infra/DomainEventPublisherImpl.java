@@ -7,6 +7,10 @@ import mk.finki.emt.feedreader.sharedkernel.infr.DomainEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class implements the interface defined by the shared kernel module
+ * and defines the publish method to suit this module
+ */
 @Service
 @AllArgsConstructor
 public class DomainEventPublisherImpl implements DomainEventPublisher {

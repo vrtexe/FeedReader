@@ -8,6 +8,11 @@ import ProfileSideCard from '../interface/ProfileSideCard';
 import { AlternatingText } from '../interface/alternatingText';
 import { AlternatingButton } from '../interface/alternatingButton';
 
+/**
+ * The profile page for a user,
+ * this page shows all the information of the user that is currently authenticated
+ * from here users can choose to subscribe to the service
+ */
 const useStyles = createUseStyles({
   profileContainer: {
     width: '100%',
@@ -163,7 +168,7 @@ const UserProfilePage = () => {
       .then((data) => {
         console.log(data);
         dispatch(
-          allActions.userActions.setSubscribed(data.subscription.isSubscibed),
+          allActions.userActions.setSubscribed(data.subscription.isSubscribed),
         );
       })
       .catch((error) => {
@@ -189,7 +194,7 @@ const UserProfilePage = () => {
       })
       .then((data) => {
         dispatch(
-          allActions.userActions.setSubscribed(data.subscription.isSubscibed),
+          allActions.userActions.setSubscribed(data.subscription.isSubscribed),
         );
       })
       .catch((error) => {
@@ -236,7 +241,7 @@ const UserProfilePage = () => {
                 altText={'Not Subscribed'}
                 classNormal={classes.subscribed}
                 classAlt={classes.notSubscribed}
-                alt={userInfo.subscription.isSubscibed}
+                alt={userInfo.subscription.isSubscribed}
               />
             </ProfileSideCard>
             <div className={classes.additionalInfo}>
@@ -253,7 +258,7 @@ const UserProfilePage = () => {
                 fieldTwoLabel={'Since'}
                 fieldOneValue={userInfo.subscription.feeds}
                 fieldTwoValue={transformDate(userInfo.subscription.since)}
-                altContent={!userInfo.subscription.isSubscibed}
+                altContent={!userInfo.subscription.isSubscribed}
               >
                 <div className={classes.unsubscribedInfo}>
                   <span className={classes.notSubscribedField}>
@@ -264,7 +269,7 @@ const UserProfilePage = () => {
               <div className={classes.subscriptionTab}>
                 <div className={classes.subscribeButtonContainer}>
                   <AlternatingButton
-                    alt={!userInfo.subscription.isSubscibed}
+                    alt={!userInfo.subscription.isSubscribed}
                     handleNormalAction={handleSubscribe}
                     handleAltAction={handleUnsubscribe}
                     normalButtonText={'Subscribe'}

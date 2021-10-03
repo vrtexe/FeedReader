@@ -1,6 +1,5 @@
 package mk.finki.emt.feedreader.feeds.domain.models;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Arrays;
@@ -26,7 +25,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-//Tuka se naogja pogolemata logika od ovoj modul
+
+/**
+ * This class is the root aggregate root for the current module, this is where most of the logic is.
+ */
 @Getter
 @Entity
 @Table(name = "feed_sources")
@@ -58,9 +60,13 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     this.subscribers = 0;
   }
 
-  // Vo konstruktorot se proveruva dali e validen linkot, dokolku ne e nema da se
-  // kretira objekt
-  // tuku bi se frlilo exception
+  /**
+   * The constructor accepts only one parameter, the url of the feed source, the other properties can be extracted from the url,
+   * the type of feed can be inferred from the contents of the XML, and the corresponding function is called to populate the other fields,
+   * after populating the feed source information, the articles are also added initially.
+   * @param link the url of the source
+   * @throws Exception an exception can be thrown when opening the XML stream if the link is invalid, as well as when reading form the stream.
+   */
   public FeedSource(Link link) throws Exception {
     super(FeedSourceId.randomId(FeedSourceId.class));
     this.link = link;
@@ -82,7 +88,7 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
           }
         }
       }
-      this.populateFieldsJsoup(reader, feedType);
+      this.populateFields(reader, feedType);
       this.updateArticlesStream(reader, feedType);
     } catch (Exception e) {
       throw e;
@@ -91,8 +97,15 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     }
   }
 
-  // Tuka se pravi chitanje na XLM i mapiranje
-  private Set<Article> readRSSArticles(XMLStreamReader reader) throws XMLStreamException, ParseException, Exception {
+  /**
+   * This is where the rss feed articles are added to the collection of articles that is mapped to the article entity,
+   * the article properties are extracted using the StAX parser, based on the RSS 2.0 specification, 
+   * if the data can not be extracted the field is left empty 
+   * @param reader the opened stream to continue reading from
+   * @return the full article collection that was just added.
+   * @throws Exception the exception thrown when reading from the stream of when parsing a value.
+   */
+  private Set<Article> readRSSArticles(XMLStreamReader reader) throws Exception {
     this.articles.removeAll(this.articles);
     while (reader.hasNext()) {
       if (reader.isStartElement()) {
@@ -224,6 +237,14 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     return articles;
   }
 
+   /**
+   * This is where the atom feed articles are added to the collection of articles that is mapped to the article entity,
+   * the article properties are extracted using the StAX parser, based on the Atom 1.0 standardization, 
+   * if the data can not be extracted the field is left empty 
+   * @param reader the opened stream to continue reading from
+   * @return the full article collection that was just added.
+   * @throws Exception the exception thrown when reading from the stream of when parsing a value.
+   */
   private Set<Article> readAtomArticles(XMLStreamReader reader) throws Exception {
     this.articles.removeAll(this.articles);
     while (reader.hasNext()) {
@@ -297,6 +318,13 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     return articles;
   }
 
+  /**
+   * A function that decides which method to call based on the type of feed standard provided. 
+   * @param reader the stream to pass to the method used for adding the articles to the database
+   * @param type the type of feed that is being parsed
+   * @return the articles that were parsed and returned from the corresponding method
+   * @throws Exception the exceptions thrown by the corresponding methods
+   */
   public Set<Article> updateArticlesStream(XMLStreamReader reader, FeedType type) throws Exception {
     if (type == FeedType.RSS) {
       return readRSSArticles(reader);
@@ -307,6 +335,11 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     }
   }
 
+  /**
+   * This method updates the articles bu also opens the stream to the XML and infers the type  
+   * @return the articles that were parsed and returned from the corresponding method
+   * @throws Exception the exceptions thrown by the corresponding methods
+   */
   public Set<Article> updateArticlesStream() {
     XMLStreamReader reader = link.openXMLStream();
     FeedType feedType = null;
@@ -343,19 +376,31 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     return null;
   }
 
-  // vo ovoj metod se zgolemuva brojot na subs za odreden source
+  /**
+   * The method used to add to the value containing the current number of subscribers.
+   * @return the object that called the method, for better method chaining
+   */
   public FeedSource addSubscriber() {
     this.subscribers++;
     return this;
   }
 
-  // vo ovoj metod se zgolemuva brojot na subs za odreden source
+  /**
+   * The method used to subtract from the value containing the current number of subscribers.
+   * @return the object that called the method, for better method chaining
+   */
   public FeedSource removeSubscriber() {
     this.subscribers--;
     return this;
   }
 
-  private void populateFieldsJsoup(XMLStreamReader reader, FeedType type) throws Exception {
+  /**
+   * The method is used to call the populate method corresponding to the type provided and return its result 
+   * @param reader the opened stream to pass to the corresponding method 
+   * @param type the type of feed
+   * @throws Exception that can be thrown by the methods.
+   */
+  private void populateFields(XMLStreamReader reader, FeedType type) throws Exception {
     if (type == FeedType.RSS) {
       populateForRss(reader);
     } else if (type == FeedType.ATOM) {
@@ -363,6 +408,11 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     }
   }
 
+  /**
+   * The method populates the fields of the feed source when its written in the Atom 1.0 standard by parsing the XML, until it reaches the first article
+   * @param reader the opened stream to read from and parse
+   * @throws Exception the exceptions thrown when reading the XML stream or when parsing an invalid type 
+   */
   private void populateForAtom(XMLStreamReader reader) throws Exception {
     while (reader.hasNext()) {
       reader.next();
@@ -395,6 +445,11 @@ public class FeedSource extends AbstractEntity<FeedSourceId> {
     this.subscribers = 0;
   }
 
+  /**
+   * The method populates the fields of the feed source when its written in the RSS 2.0 standard by parsing the XML, until it reaches the first article
+   * @param reader the opened stream to read from and parse
+   * @throws XMLStreamException the exceptions thrown when reading the XML stream or when parsing an invalid type
+   */
   private void populateForRss(XMLStreamReader reader) throws XMLStreamException {
     while (reader.hasNext()) {
       reader.next();

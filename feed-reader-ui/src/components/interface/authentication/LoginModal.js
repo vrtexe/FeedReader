@@ -8,6 +8,10 @@ import {
   Row,
 } from 'react-bootstrap';
 
+/**
+ * This component is the login form, it is used in the userLoginRegistration modal dialog,
+ * where it can be switched with the registration form
+ */
 export const LoginModal = (props) => {
   return (
     <>

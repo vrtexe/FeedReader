@@ -11,13 +11,20 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-//Tuka se naigjaat site eventListenteners za soodvetnata klasa
+/**
+ * * The FeedSourceListener class contains all the kafka event listeners 
+ */
 @Service
 @AllArgsConstructor
 public class FeedSourceListener {
 
   private final FeedService service;
 
+  /**
+   * * The event listener for the 'user subscribed to feed' topic, the event fires when user subscribes to a feed source.
+   * after the event is fired a function is called to add to the counter keeping track of the number of subscribers for a feed.
+   * @param jsonMessage is the data sent by the request, that is then mapped to the UserSubscribed object located in shared-kernel
+   */
   @KafkaListener(
     topics = TopicHolder.TOPIC_USER_SUBSCRIBED_TO_FEED,
     groupId = "feedSubscriptionGroup"
@@ -34,6 +41,11 @@ public class FeedSourceListener {
     }
   }
 
+  /**
+   * * The event listener for the 'user unsubscribed from feed' topic, the event fires when user unsubscribes from a feed source.
+   * after the event is fired a function is called to subtract from the counter keeping track of the number of subscribers for a feed.
+   * @param jsonMessage is the data sent by the request, that is then mapped to the UserUnSubscribed object located in shared-kernel
+   */
   @KafkaListener(
     topics = TopicHolder.TOPIC_USER_UNSUBSCRIBED_FROM_FEED,
     groupId = "feedSubscriptionGroup"
@@ -50,6 +62,11 @@ public class FeedSourceListener {
     }
   }
 
+  /**
+   * * The event listener for the 'user unsubscribed from service' topic, the event fires when user unsubscribes from the global service.
+   * after the event is fired a function is called to subtract from all of the feeds the user was subscribed to.
+   * @param jsonMessage is the data sent by the request, that is then mapped to the UserUnsubscribeFromAll object located in shared-kernel
+   */
   @KafkaListener(
     topics = TopicHolder.TOPIC_USER_UNSUBSCRIBED_FROM_SERVICE,
     groupId = "feedSubscriptionGroup"

@@ -56,6 +56,9 @@ const useStyles = createUseStyles({
   },
 });
 
+/**
+ * The left side of the profile card providing more advanced info
+ */
 const UserInfoTab = (props) => {
   const classes = useStyles();
 

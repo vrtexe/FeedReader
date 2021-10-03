@@ -7,6 +7,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * This class represents the subscription form,
+ * that consists of a username and the id to the feed source that
+ * the user is subscribing to
+ */
 @Data
 public class SubscriptionForm {
 

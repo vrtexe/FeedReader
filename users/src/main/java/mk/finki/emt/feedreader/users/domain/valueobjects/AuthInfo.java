@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-//Ovde se vrshi simulacija na logiranje
+/**
+ * This is a value object representing the authentication part of the user
+ * this is where the user is authenticated.
+ */
 @Getter
 @Embeddable
 @Component
@@ -22,7 +25,7 @@ public class AuthInfo {
   @Transient
   private static PasswordEncoder passwordEncoder;
 
-  protected AuthInfo(){
+  protected AuthInfo() {
     this.username = null;
     this.password = null;
   }

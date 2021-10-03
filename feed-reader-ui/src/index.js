@@ -9,6 +9,11 @@ import { PersistGate } from 'redux-persist/integration/react';
 import LoadingComponent from './components/interface/LoadingComponent';
 import store from './store/store';
 
+/**
+ * The index file that initializes the react application,
+ * the provider component provides the store to all the descendants,
+ * while the persistGate component persists the data in the store after a reload is performed
+ */
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store.store}>

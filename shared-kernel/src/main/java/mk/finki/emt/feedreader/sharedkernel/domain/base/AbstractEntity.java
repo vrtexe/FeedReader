@@ -3,12 +3,14 @@ package mk.finki.emt.feedreader.sharedkernel.domain.base;
 import java.util.Objects;
 import javax.persistence.EmbeddedId;
 import javax.persistence.MappedSuperclass;
-
-import org.springframework.data.util.ProxyUtils;
-
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.data.util.ProxyUtils;
 
+/**
+ * The base class that all entities represented in the database extend from
+ * It consists of an id with the corresponding type of id to the entity type
+ */
 @Getter
 @MappedSuperclass
 public class AbstractEntity<ID extends DomainObjectId> {

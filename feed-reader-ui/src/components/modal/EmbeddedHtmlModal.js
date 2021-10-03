@@ -2,6 +2,9 @@ import { Component } from 'react';
 import { Row, Col, Container, Modal } from 'react-bootstrap';
 import Loader from 'react-loader-spinner';
 
+/**
+ * This is a modal dialog box with the html of teh article embedded inside a regular object
+ */
 class EmbeddedHtmlModal extends Component {
   constructor(props) {
     super(props);

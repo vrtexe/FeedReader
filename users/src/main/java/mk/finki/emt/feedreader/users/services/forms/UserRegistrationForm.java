@@ -9,6 +9,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * This form represents the registration form,
+ * it contains the general information for the user, such as the full name,
+ * the email, password and username.
+ */
 @Data
 public class UserRegistrationForm {
 

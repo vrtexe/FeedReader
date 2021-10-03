@@ -4,6 +4,9 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AlternatingButton } from './interface/alternatingButton';
 
+/**
+ * This component represents only a single feed source row
+ */
 const FeedSource = (props) => {
   const user = useSelector((state) => state.currentUser, shallowEqual);
 

@@ -3,6 +3,10 @@ import { Component } from 'react';
 import { LoginModal } from '../interface/authentication/LoginModal';
 import { RegistrationModal } from '../interface/authentication/registrationModal';
 
+/**
+ * This component is a modal dialog and focuses on authentication,
+ * it handles communication with the server for everything related to authentication
+ */
 class UserLoginModal extends Component {
   constructor(props) {
     super(props);

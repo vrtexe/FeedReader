@@ -11,6 +11,9 @@ const useStyles = createUseStyles({
   },
 });
 
+/**
+ * The component shown when the application is in a state of loading data from the server
+ */
 const LoadingComponent = () => {
   const classes = useStyles();
 

@@ -9,7 +9,12 @@ import { SettingsModal } from '../components/modal/SettingsModal';
 import UserLoginRegisterModal from '../components/modal/UserLoginRegisterModal';
 import allActions from '../store/actions';
 
-const Header = () => {
+/**
+ * The header component consists of the navigation links,
+ * and two modal boxes, one for setting up the feed sources,
+ * and the other for the authentication.
+ */
+export const Header = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -63,7 +68,7 @@ const Header = () => {
       },
     );
     let data = await response.json();
-    return data.subscription.isSubscibed;
+    return data.subscription.isSubscribed;
   };
 
   return (
@@ -136,4 +141,3 @@ const Header = () => {
   );
 };
 
-export default Header;

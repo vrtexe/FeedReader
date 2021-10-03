@@ -7,6 +7,11 @@ import javax.xml.stream.XMLStreamReader;
 import lombok.Getter;
 import mk.finki.emt.feedreader.feeds.domain.exceptions.UnsupportedXMLStreamReaderState;
 
+/**
+ * The author value object, represents either the author of the article of the author of the feed source,
+ * if not provided the values are empty, the parsing method for the author is located here,
+ * it contains all the immutable fields representing the author.
+ */
 @Embeddable
 @Getter
 public class Author {
@@ -35,6 +40,13 @@ public class Author {
     this.uri = uri;
   }
 
+  /**
+   * The method used to parse the author from the stream, it also checks if the method is called on 
+   * an element representing the author, if not it throws and exception
+   * @param reader the opened stream to read from
+   * @return The immutable author object used to later update the author.
+   * @throws XMLStreamException when there is an error when reading from the stream or when reading is unsupported
+   */
   public static Author createFromXmlStream(XMLStreamReader reader) throws XMLStreamException {
     String name = "";
     String uri = null;

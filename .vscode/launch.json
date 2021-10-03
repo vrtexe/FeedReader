@@ -1,0 +1,44 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "firefox",
+			"request": "launch",
+			"name": "Launch firefox against localhost",
+			"url": "http://localhost:3000",
+			"webRoot": "${workspaceRoot}/feed-reader-ui"
+		},
+		{
+			"type": "firefox",
+			"request": "attach",
+			"name": "Attach to firefox",
+			"port": 9222,
+			"webRoot": "${workspaceRoot}/feed-reader-ui"
+		},
+		{
+			"name": "Launch Feed Reader UI",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${workspaceFolder}/feed-reader-ui",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "start"]
+		},
+		{
+			"type": "java",
+			"name": "Launch FeedsApplication",
+			"request": "launch",
+			"mainClass": "mk.finki.emt.feedreader.feeds.FeedsApplication",
+			"projectName": "feeds"
+		},
+		{
+			"type": "java",
+			"name": "Launch UsersApplication",
+			"request": "launch",
+			"mainClass": "mk.finki.emt.feedreader.users.UsersApplication",
+			"projectName": "users"
+		}
+	]
+}

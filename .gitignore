@@ -242,6 +242,9 @@ sketch
 !.vscode/extensions.json
 *.code-workspace
 
+settings.json
+launch.json
+
 # Local History for Visual Studio Code
 .history/
 

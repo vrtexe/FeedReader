@@ -37,7 +37,6 @@ const useStyles = createUseStyles({
 
   mainInfoPanel: {
     width: '65%',
-    height: '100%',
     padding: '2%',
     boxSizing: 'border-box',
     borderRadius: '1.5em',

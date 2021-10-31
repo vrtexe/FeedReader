@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * The class that initializes data for testing,
  * ! not part of the application
  */
-@Component
+//@Component
 @AllArgsConstructor
 public class DataInitializer {
 
